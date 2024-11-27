@@ -1,0 +1,414 @@
+/**
+ * CF7 Advanced Honeypot - Admin Styles
+ *
+ * This file contains all necessary styles for the CF7 Advanced Honeypot plugin's
+ * administrative dashboard. Styles are organized in logical sections and use
+ * BEM-like naming convention for clarity and maintainability.
+ *
+ * @version 1.0.0
+ */
+
+/* ==========================================================================
+   Main Layout and Container
+   ========================================================================== */
+.cf7-honeypot-stats {
+  max-width: 1400px;
+  margin: 20px auto;
+  padding: 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+/* ==========================================================================
+   Dashboard Header
+   ========================================================================== */
+.stats-header {
+  background: linear-gradient(135deg, #2271b1 0%, #135e96 100%);
+  padding: 35px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(34, 113, 177, 0.12);
+  position: relative;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* Decorative header icon */
+.stats-header::before {
+  content: "";
+  position: absolute;
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+}
+
+.stats-header::after {
+  content: "";
+  position: absolute;
+  right: 55px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.1);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+/* Main title styles */
+.stats-header h1 {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0;
+  padding: 0;
+  border: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Descriptive subtitle */
+.stats-header p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 10px 0 0 0;
+  font-size: 16px;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Statistics Cards
+   ========================================================================== */
+.stats-overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+/* Base statistics card */
+.stat-card {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 160px;
+}
+
+/* Card hover effects */
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Color variants for different cards */
+.stat-card:nth-child(1) {
+  background: linear-gradient(135deg, #3498db10 0%, #ffffff 100%);
+}
+
+.stat-card:nth-child(2) {
+  background: linear-gradient(135deg, #2ecc7110 0%, #ffffff 100%);
+}
+
+.stat-card:nth-child(3) {
+  background: linear-gradient(135deg, #9b59b610 0%, #ffffff 100%);
+}
+
+.stat-card:nth-child(4) {
+  background: linear-gradient(135deg, #f1c40f10 0%, #ffffff 100%);
+}
+
+/* Number colors for each card */
+.stat-card:nth-child(1) .stat-number {
+  color: #3498db;
+}
+.stat-card:nth-child(2) .stat-number {
+  color: #2ecc71;
+}
+.stat-card:nth-child(3) .stat-number {
+  color: #9b59b6;
+}
+.stat-card:nth-child(4) .stat-number {
+  color: #f1c40f;
+}
+
+/* Card titles */
+.stat-card h3 {
+  color: #50575e;
+  font-size: 15px;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+}
+
+/* Statistical numbers */
+.stat-number {
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 15px 0;
+}
+
+/* Additional labels */
+.stat-label {
+  color: #666;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* ==========================================================================
+   Log Cleanup Section
+   ========================================================================== */
+.cleanup-section {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.cleanup-section h2 {
+  color: #1d2327;
+  font-size: 20px;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+/* Button layout */
+.cleanup-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: space-between;
+}
+
+.cleanup-options form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  width: 100%;
+}
+
+/* Base button styles */
+.cleanup-button {
+  flex: 1;
+  min-width: 200px;
+  max-width: calc(25% - 12px);
+  padding: 12px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #2271b1;
+  background: #fff;
+  color: #2271b1;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 14px;
+  text-align: center;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* Button hover effects */
+.cleanup-button:hover {
+  background: #2271b1;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(34, 113, 177, 0.2);
+}
+
+/* Danger button variant */
+.cleanup-button.danger {
+  border-color: #d63638;
+  color: #d63638;
+}
+
+.cleanup-button.danger:hover {
+  background: #d63638;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(214, 54, 56, 0.2);
+}
+
+/* ==========================================================================
+   Spam Attempts Table
+   ========================================================================== */
+.attempts-table {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.attempts-table h2 {
+  color: #1d2327;
+  font-size: 20px;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+/* Base table structure */
+.wp-list-table {
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  width: 100%;
+}
+
+/* Table header */
+.wp-list-table thead th {
+  background: #f8f9fa;
+  padding: 15px;
+  font-weight: 600;
+  color: #1d2327;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+/* Table rows */
+.wp-list-table tbody tr {
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+.wp-list-table tbody td {
+  padding: 15px;
+  background: #fff;
+  border-top: 1px solid #f0f0f1;
+  border-bottom: 1px solid #f0f0f1;
+}
+
+/* Row hover effect */
+.wp-list-table tbody tr:hover {
+  transform: translateX(5px);
+  background: #f8f9fa;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Badge variants */
+.status-badge.high {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.medium {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.low {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Attempt count */
+.attempt-count {
+  font-weight: 500;
+}
+
+.attempt-count.high {
+  color: #dc2626;
+}
+.attempt-count.medium {
+  color: #d97706;
+}
+.attempt-count.low {
+  color: #16a34a;
+}
+
+/* Form details */
+.form-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.form-tag {
+  background: #f0f0f1;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #50575e;
+}
+
+/* No attempts message */
+.no-attempts {
+  text-align: center;
+  padding: 40px;
+  color: #16a34a;
+  font-size: 16px;
+  background: #f0fdf4;
+  border-radius: 8px;
+  margin: 0;
+}
+
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+@media (max-width: 1200px) {
+  /* Layout adaptation for medium screens */
+  .stats-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cleanup-button {
+    max-width: calc(50% - 8px);
+  }
+}
+
+@media (max-width: 782px) {
+  /* Layout adaptation for mobile devices */
+  .cf7-honeypot-stats {
+    padding: 0 15px;
+    gap: 20px;
+  }
+
+  .stats-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .cleanup-button {
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  .stat-card {
+    min-height: auto;
+  }
+
+  /* Responsive table handling */
+  .wp-list-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .stats-header h1 {
+    font-size: 24px;
+  }
+
+  .stat-number {
+    font-size: 36px;
+  }
+}
