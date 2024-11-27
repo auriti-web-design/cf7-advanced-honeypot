@@ -349,9 +349,8 @@ This project is licensed under the GPL v2 or later.
 
 ## Support
 
-- GitHub Issues: [https://github.com/auriti-web-design/cf7-advanced-honeypot/issues]
-
-- Documentation: [https://github.com/auriti-web-design/cf7-advanced-honeypot/blob/master/README.md]
+- GitHub Issues: [Issues](https://github.com/auriti-web-design/cf7-advanced-honeypot/issues)
+- Documentation: [Documentation](https://github.com/auriti-web-design/cf7-advanced-honeypot/blob/master/README.md)
 
 ---
 
