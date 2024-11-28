@@ -1,15 +1,15 @@
 /**
  * CF7 Advanced Honeypot - Admin Styles
  *
- * This file contains all necessary styles for the CF7 Advanced Honeypot plugin's
+ * This file contains all the necessary styles for the CF7 Advanced Honeypot
  * administrative dashboard. Styles are organized in logical sections and use
- * BEM-like naming convention for clarity and maintainability.
+ * BEM-like naming for better clarity and maintainability.
  *
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 /* ==========================================================================
-   Main Layout and Container
+   Main layout and containers
    ========================================================================== */
 .cf7-honeypot-stats {
   max-width: 1400px;
@@ -23,7 +23,7 @@
 }
 
 /* ==========================================================================
-   Dashboard Header
+   Dashboard header
    ========================================================================== */
 .stats-header {
   background: linear-gradient(135deg, #2271b1 0%, #135e96 100%);
@@ -74,7 +74,7 @@
   gap: 15px;
 }
 
-/* Descriptive subtitle */
+/* Description subtitle */
 .stats-header p {
   color: rgba(255, 255, 255, 0.9);
   margin: 10px 0 0 0;
@@ -84,7 +84,7 @@
 }
 
 /* ==========================================================================
-   Statistics Cards
+   Statistics cards
    ========================================================================== */
 .stats-overview {
   display: grid;
@@ -170,7 +170,7 @@
 }
 
 /* ==========================================================================
-   Log Cleanup Section
+   Log cleanup section
    ========================================================================== */
 .cleanup-section {
   background: #fff;
@@ -202,7 +202,7 @@
   width: 100%;
 }
 
-/* Base button styles */
+/* Base button style */
 .cleanup-button {
   flex: 1;
   min-width: 200px;
@@ -229,7 +229,7 @@
   box-shadow: 0 4px 6px rgba(34, 113, 177, 0.2);
 }
 
-/* Danger button variant */
+/* Dangerous button variant */
 .cleanup-button.danger {
   border-color: #d63638;
   color: #d63638;
@@ -242,7 +242,7 @@
 }
 
 /* ==========================================================================
-   Spam Attempts Table
+   Spam attempts table
    ========================================================================== */
 .attempts-table {
   background: #fff;
@@ -307,17 +307,17 @@
 }
 
 /* Badge variants */
-.status-badge.high {
+.status-badge.risk-high {
   background: #fee2e2;
   color: #dc2626;
 }
 
-.status-badge.medium {
+.status-badge.risk-medium {
   background: #fef3c7;
   color: #d97706;
 }
 
-.status-badge.low {
+.status-badge.risk-low {
   background: #dcfce7;
   color: #16a34a;
 }
@@ -327,13 +327,13 @@
   font-weight: 500;
 }
 
-.attempt-count.high {
+.attempt-count.risk-high {
   color: #dc2626;
 }
-.attempt-count.medium {
+.attempt-count.risk-medium {
   color: #d97706;
 }
-.attempt-count.low {
+.attempt-count.risk-low {
   color: #16a34a;
 }
 
