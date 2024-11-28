@@ -19,6 +19,9 @@ if (!defined('WPINC')) {
     die;
 }
 
+// Include la classe delle impostazioni
+require_once plugin_dir_path(__FILE__) . 'includes/class-cf7-honeypot-settings.php';
+
 class CF7_Advanced_Honeypot
 {
     private static $instance = null;
@@ -268,15 +271,52 @@ class CF7_Advanced_Honeypot
 
     public function add_admin_menu()
     {
+        // Menu principale
         add_menu_page(
-            __('CF7 Honeypot Stats', 'cf7-honeypot'),
+            __('CF7 Honeypot', 'cf7-honeypot'),
             __('CF7 Honeypot', 'cf7-honeypot'),
             'manage_options',
-            'cf7-honeypot-stats',
+            'cf7-honeypot-stats', // Questo è l'slug del menu principale
             array($this, 'render_stats_page'),
             'dashicons-shield',
             30
         );
+
+        // Sottomenu Statistiche (per rendere esplicito il primo elemento del menu)
+        add_submenu_page(
+            'cf7-honeypot-stats',
+            __('Statistics', 'cf7-honeypot'),
+            __('Statistics', 'cf7-honeypot'),
+            'manage_options',
+            'cf7-honeypot-stats',
+            array($this, 'render_stats_page')
+        );
+
+        // Sottomenu Impostazioni
+        add_submenu_page(
+            'cf7-honeypot-stats',
+            __('Settings', 'cf7-honeypot'),
+            __('Settings', 'cf7-honeypot'),
+            'manage_options',
+            'cf7-honeypot-settings',
+            array($this, 'render_settings_page')
+        );
+    }
+
+    /**
+     * Renderizza la pagina delle impostazioni
+     *
+     * @return void
+     */
+    public function render_settings_page()
+    {
+        // Verifica i permessi
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        // Include il template delle impostazioni
+        include plugin_dir_path(__FILE__) . 'templates/settings-page.php';
     }
 
     public function render_stats_page()
