@@ -2,10 +2,12 @@
 /**
  * Plugin Name: Advanced CF7 Honeypot System
  * Description: Advanced anti-spam protection system for Contact Form 7
- * Version: 1.0.0
- * Author: Dromedian s.r.l.
+ * Version: 1.1.0
+ * Author: Juan Camilo Auriti
  * Text Domain: cf7-honeypot
  * Domain Path: /languages
+ * License: GPL-2.0+
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.txt
  */
 
 // Prevent direct file access
@@ -17,19 +19,22 @@ if (!defined('WPINC')) {
     die;
 }
 
-class CF7_Advanced_Honeypot {
+class CF7_Advanced_Honeypot
+{
     private static $instance = null;
     private $questions_table = 'cf7_honeypot_questions';
     private $stats_table = 'cf7_honeypot_stats';
 
-    public static function get_instance() {
+    public static function get_instance()
+    {
         if (self::$instance === null) {
             self::$instance = new self();
         }
         return self::$instance;
     }
 
-    private function __construct() {
+    private function __construct()
+    {
         add_action('init', array($this, 'init_honeypot'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_filter('wpcf7_validate', array($this, 'validate_honeypot'), 10, 2);
@@ -43,7 +48,8 @@ class CF7_Advanced_Honeypot {
         add_action('cf7_honeypot_cleanup', array($this, 'cleanup_old_logs'));
     }
 
-    public static function activate_plugin() {
+    public static function activate_plugin()
+    {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
         $questions_table = $wpdb->prefix . 'cf7_honeypot_questions';
@@ -78,7 +84,8 @@ class CF7_Advanced_Honeypot {
         }
     }
 
-    private static function insert_default_questions() {
+    private static function insert_default_questions()
+    {
         global $wpdb;
         $table_name = $wpdb->prefix . 'cf7_honeypot_questions';
 
@@ -118,12 +125,14 @@ class CF7_Advanced_Honeypot {
         }
     }
 
-    public function init_honeypot() {
+    public function init_honeypot()
+    {
         add_filter('wpcf7_form_elements', array($this, 'add_honeypot_field'));
         load_plugin_textdomain('cf7-honeypot', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
-    public function maybe_update_database() {
+    public function maybe_update_database()
+    {
         global $wpdb;
         $table_name = $wpdb->prefix . $this->stats_table;
 
@@ -134,7 +143,8 @@ class CF7_Advanced_Honeypot {
         }
     }
 
-    public function add_honeypot_field($content) {
+    public function add_honeypot_field($content)
+    {
         global $wpdb;
         $table_name = $wpdb->prefix . $this->questions_table;
 
@@ -183,7 +193,8 @@ class CF7_Advanced_Honeypot {
         return $styles . $content . $hidden_field;
     }
 
-    public function validate_honeypot($result, $tags) {
+    public function validate_honeypot($result, $tags)
+    {
         global $wpdb;
         $table_name = $wpdb->prefix . $this->questions_table;
         $field_ids = $wpdb->get_col("SELECT field_id FROM $table_name");
@@ -201,7 +212,8 @@ class CF7_Advanced_Honeypot {
         return $result;
     }
 
-    private function log_spam_attempt($form_id) {
+    private function log_spam_attempt($form_id)
+    {
         global $wpdb;
         $table_name = $wpdb->prefix . $this->stats_table;
 
@@ -225,7 +237,8 @@ class CF7_Advanced_Honeypot {
         );
     }
 
-    private function get_client_ip() {
+    private function get_client_ip()
+    {
         $ip_headers = array(
             'HTTP_CLIENT_IP',
             'HTTP_X_FORWARDED_FOR',
@@ -239,7 +252,8 @@ class CF7_Advanced_Honeypot {
         foreach ($ip_headers as $header) {
             if (!empty($_SERVER[$header])) {
                 $ip = $_SERVER[$header];
-                if ($ip === '::1') return '127.0.0.1';
+                if ($ip === '::1')
+                    return '127.0.0.1';
                 if (strpos($ip, ',') !== false) {
                     $ips = explode(',', $ip);
                     $ip = trim($ips[0]);
@@ -252,7 +266,8 @@ class CF7_Advanced_Honeypot {
         return 'UNKNOWN';
     }
 
-    public function add_admin_menu() {
+    public function add_admin_menu()
+    {
         add_menu_page(
             __('CF7 Honeypot Stats', 'cf7-honeypot'),
             __('CF7 Honeypot', 'cf7-honeypot'),
@@ -264,7 +279,8 @@ class CF7_Advanced_Honeypot {
         );
     }
 
-    public function render_stats_page() {
+    public function render_stats_page()
+    {
         global $wpdb;
         $stats_table = $wpdb->prefix . $this->stats_table;
 
@@ -308,7 +324,8 @@ class CF7_Advanced_Honeypot {
         include(plugin_dir_path(__FILE__) . 'templates/stats-page.php');
     }
 
-    public function cleanup_old_logs($period = '30') {
+    public function cleanup_old_logs($period = '30')
+    {
         global $wpdb;
         $stats_table = $wpdb->prefix . $this->stats_table;
 
@@ -328,11 +345,13 @@ class CF7_Advanced_Honeypot {
         }
     }
 
-    public static function deactivate() {
+    public static function deactivate()
+    {
         wp_clear_scheduled_hook('cf7_honeypot_cleanup');
     }
 
-    public function enqueue_admin_styles() {
+    public function enqueue_admin_styles()
+    {
         wp_enqueue_style(
             'cf7-honeypot-admin',
             plugins_url('assets/css/admin-style.css', __FILE__),
@@ -343,11 +362,13 @@ class CF7_Advanced_Honeypot {
 }
 
 // Plugin initialization functions
-function cf7_advanced_honeypot_init() {
+function cf7_advanced_honeypot_init()
+{
     return CF7_Advanced_Honeypot::get_instance();
 }
 
-function cf7_advanced_honeypot_admin_styles() {
+function cf7_advanced_honeypot_admin_styles()
+{
     $instance = CF7_Advanced_Honeypot::get_instance();
     if (method_exists($instance, 'enqueue_admin_styles')) {
         $instance->enqueue_admin_styles();
@@ -357,7 +378,8 @@ function cf7_advanced_honeypot_admin_styles() {
 // Hook registrations
 add_action('admin_enqueue_scripts', 'cf7_advanced_honeypot_admin_styles');
 
-function cf7_advanced_honeypot_deactivate() {
+function cf7_advanced_honeypot_deactivate()
+{
     CF7_Advanced_Honeypot::deactivate();
 }
 
@@ -368,10 +390,11 @@ add_action('plugins_loaded', 'cf7_advanced_honeypot_init');
 
 // Add cron schedule
 add_filter('cron_schedules', 'add_twiceweekly_schedule');
-function add_twiceweekly_schedule($schedules) {
+function add_twiceweekly_schedule($schedules)
+{
     $schedules['twiceweekly'] = array(
         'interval' => 302400, // 3.5 days in seconds
-        'display'  => __('Twice Weekly', 'cf7-honeypot')
+        'display' => __('Twice Weekly', 'cf7-honeypot')
     );
     return $schedules;
 }
