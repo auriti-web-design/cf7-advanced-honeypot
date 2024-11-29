@@ -1,106 +1,12 @@
 <?php
 /**
- * Template Name: CF7 Advanced Honeypot Statistics Page
- *
- * Displays statistics for the CF7 Advanced Honeypot plugin.
- * Includes:
- * - Statistics overview (24h, 7 days, 30 days, total)
- * - Log cleanup system
- * - Detailed spam attempts visualization
- *
- * @package CF7_Advanced_Honeypot
- * @version 1.0.0
+ * Template Name: CF7 Advanced Honeypot Statistics Page - Enhanced
+ * Version: 1.2.0
  */
 
 // Prevent direct file access
 if (!defined('ABSPATH')) {
     exit;
-}
-
-global $wpdb;
-
-/**
- * Handle log cleanup request
- * Verify nonce and clean logs based on selected period
- */
-if (isset($_POST['action']) && $_POST['action'] === 'clear_logs' && check_admin_referer('cf7_honeypot_clear_logs')) {
-    $period = isset($_POST['period']) ? sanitize_text_field($_POST['period']) : '30';
-    CF7_Advanced_Honeypot::get_instance()->cleanup_old_logs($period);
-    echo '<div class="notice notice-success"><p>' . esc_html__('Logs successfully deleted!', 'cf7-honeypot') . '</p></div>';
-}
-
-// Define stats table
-$stats_table = $wpdb->prefix . 'cf7_honeypot_stats';
-
-// Get statistics for different time periods
-$last_24h = $wpdb->get_var($wpdb->prepare(
-    "SELECT COUNT(*) FROM {$stats_table}
-    WHERE honeypot_triggered = 1
-    AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)"
-));
-
-$last_7d = $wpdb->get_var($wpdb->prepare(
-    "SELECT COUNT(*) FROM {$stats_table}
-    WHERE honeypot_triggered = 1
-    AND created_at > DATE_SUB(NOW(), INTERVAL 7 DAY)"
-));
-
-$last_30d = $wpdb->get_var($wpdb->prepare(
-    "SELECT COUNT(*) FROM {$stats_table}
-    WHERE honeypot_triggered = 1
-    AND created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)"
-));
-
-$total_attempts = $wpdb->get_var($wpdb->prepare(
-    "SELECT COUNT(*) FROM {$stats_table}
-    WHERE honeypot_triggered = 1"
-));
-
-// Get recent spam attempts details
-$recent_attempts = $wpdb->get_results(
-    "SELECT s.*,
-        p.post_title as form_title,
-        (SELECT COUNT(*)
-         FROM {$stats_table}
-         WHERE ip_address = s.ip_address
-         AND honeypot_triggered = 1) as attempts_count,
-        (SELECT GROUP_CONCAT(DISTINCT form_id)
-         FROM {$stats_table}
-         WHERE ip_address = s.ip_address
-         AND honeypot_triggered = 1) as targeted_forms,
-        DATE_FORMAT(s.created_at, '%Y-%m-%d') as attempt_date
-    FROM {$stats_table} s
-    LEFT JOIN {$wpdb->posts} p ON s.form_id = p.ID
-    WHERE s.honeypot_triggered = 1
-    ORDER BY s.created_at DESC
-    LIMIT 10"
-);
-
-/**
- * Helper function to determine risk level
- */
-function get_risk_level($attempts_count)
-{
-    if ($attempts_count > 5)
-        return 'high';
-    if ($attempts_count > 2)
-        return 'medium';
-    return 'low';
-}
-
-/**
- * Helper function to get risk level label
- */
-function get_risk_label($risk_level)
-{
-    switch ($risk_level) {
-        case 'high':
-            return __('High Risk', 'cf7-honeypot');
-        case 'medium':
-            return __('Medium Risk', 'cf7-honeypot');
-        default:
-            return __('Low Risk', 'cf7-honeypot');
-    }
 }
 ?>
 
@@ -108,8 +14,9 @@ function get_risk_label($risk_level)
     <div class="cf7-honeypot-stats">
         <!-- Page Header -->
         <div class="stats-header">
-            <h1><?php esc_html_e('Anti-Spam Protection: Statistics and Reports', 'cf7-honeypot'); ?></h1>
-            <p><?php esc_html_e('Monitor spam attempts and analyze your website security.', 'cf7-honeypot'); ?></p>
+            <h1><?php esc_html_e('Anti-Spam Protection: Enhanced Statistics and Reports', 'cf7-honeypot'); ?></h1>
+            <p><?php esc_html_e('Monitor spam attempts and analyze your website security with detailed insights.', 'cf7-honeypot'); ?>
+            </p>
         </div>
 
         <!-- Statistics Overview -->
@@ -139,50 +46,57 @@ function get_risk_label($risk_level)
             </div>
         </div>
 
-        <!-- Log Cleanup Section -->
-        <div class="cleanup-section">
-            <h2><?php esc_html_e('Log Management', 'cf7-honeypot'); ?></h2>
-            <div class="cleanup-options">
-                <form method="post" action="">
-                    <?php wp_nonce_field('cf7_honeypot_clear_logs'); ?>
-                    <input type="hidden" name="action" value="clear_logs">
-
-                    <button type="submit" name="period" value="1" class="cleanup-button"
-                        onclick="return confirm('<?php esc_attr_e('Are you sure you want to delete the last 24 hours logs?', 'cf7-honeypot'); ?>');">
-                        <?php esc_html_e('Delete last 24 hours logs', 'cf7-honeypot'); ?>
-                    </button>
-
-                    <button type="submit" name="period" value="7" class="cleanup-button"
-                        onclick="return confirm('<?php esc_attr_e('Are you sure you want to delete the last 7 days logs?', 'cf7-honeypot'); ?>');">
-                        <?php esc_html_e('Delete last 7 days logs', 'cf7-honeypot'); ?>
-                    </button>
-
-                    <button type="submit" name="period" value="30" class="cleanup-button"
-                        onclick="return confirm('<?php esc_attr_e('Are you sure you want to delete the last 30 days logs?', 'cf7-honeypot'); ?>');">
-                        <?php esc_html_e('Delete last 30 days logs', 'cf7-honeypot'); ?>
-                    </button>
-
-                    <button type="submit" name="period" value="all" class="cleanup-button danger"
-                        onclick="return confirm('<?php esc_attr_e('WARNING: You are about to delete all logs. This action cannot be undone. Do you want to continue?', 'cf7-honeypot'); ?>');">
-                        <?php esc_html_e('Delete all logs', 'cf7-honeypot'); ?>
-                    </button>
-                </form>
+        <!-- Advanced Statistics Dashboard -->
+        <div class="advanced-stats-section">
+            <h2><?php esc_html_e('Detailed Analysis', 'cf7-honeypot'); ?></h2>
+            <div class="stats-grid">
+                <?php if (!empty($summary_stats)): ?>
+                    <?php
+                    $latest_stats = reset($summary_stats); // Get most recent day's stats
+                    if ($latest_stats):
+                        ?>
+                        <div class="detailed-stat-card">
+                            <h4><?php esc_html_e('Today\'s Overview', 'cf7-honeypot'); ?></h4>
+                            <ul class="stat-list">
+                                <li>
+                                    <span class="stat-label"><?php esc_html_e('Unique IPs:', 'cf7-honeypot'); ?></span>
+                                    <span class="stat-value"><?php echo esc_html($latest_stats->unique_ips); ?></span>
+                                </li>
+                                <li>
+                                    <span class="stat-label"><?php esc_html_e('Unique Browsers:', 'cf7-honeypot'); ?></span>
+                                    <span class="stat-value"><?php echo esc_html($latest_stats->unique_browsers); ?></span>
+                                </li>
+                                <li>
+                                    <span class="stat-label"><?php esc_html_e('Forms Affected:', 'cf7-honeypot'); ?></span>
+                                    <span class="stat-value"><?php echo esc_html($latest_stats->forms_affected); ?></span>
+                                </li>
+                                <li>
+                                    <span
+                                        class="stat-label"><?php esc_html_e('Honeypot Fields Triggered:', 'cf7-honeypot'); ?></span>
+                                    <span
+                                        class="stat-value"><?php echo esc_html($latest_stats->unique_fields_triggered); ?></span>
+                                </li>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         </div>
 
-        <!-- Spam Attempts Table -->
+        <!-- Recent Attempts Table with Enhanced Information -->
         <div class="attempts-table">
             <h2><?php esc_html_e('Recent Spam Attempts', 'cf7-honeypot'); ?></h2>
             <?php if (!empty($recent_attempts)): ?>
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
-                            <th width="15%"><?php esc_html_e('Date/Time', 'cf7-honeypot'); ?></th>
-                            <th width="20%"><?php esc_html_e('Form', 'cf7-honeypot'); ?></th>
-                            <th width="15%"><?php esc_html_e('IP Address', 'cf7-honeypot'); ?></th>
-                            <th width="20%"><?php esc_html_e('Email', 'cf7-honeypot'); ?></th>
-                            <th width="15%"><?php esc_html_e('Total Attempts', 'cf7-honeypot'); ?></th>
-                            <th width="15%"><?php esc_html_e('Status', 'cf7-honeypot'); ?></th>
+                            <th width="12%"><?php esc_html_e('Date/Time', 'cf7-honeypot'); ?></th>
+                            <th width="15%"><?php esc_html_e('Form', 'cf7-honeypot'); ?></th>
+                            <th width="12%"><?php esc_html_e('IP Address', 'cf7-honeypot'); ?></th>
+                            <th width="15%"><?php esc_html_e('Email', 'cf7-honeypot'); ?></th>
+                            <th width="12%"><?php esc_html_e('Triggered Field', 'cf7-honeypot'); ?></th>
+                            <th width="10%"><?php esc_html_e('Status', 'cf7-honeypot'); ?></th>
+                            <th width="24%"><?php esc_html_e('Additional Info', 'cf7-honeypot'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -192,12 +106,31 @@ function get_risk_label($risk_level)
                                 <td><?php echo esc_html($attempt->form_title ?: 'Form #' . $attempt->form_id); ?></td>
                                 <td><?php echo esc_html($attempt->ip_address); ?></td>
                                 <td><?php echo esc_html($attempt->email ?: 'N/A'); ?></td>
-                                <td><span class="attempt-count"><?php echo esc_html($attempt->attempts_count); ?></span></td>
+                                <td><?php echo esc_html($attempt->triggered_field ?: 'Unknown'); ?></td>
                                 <td>
                                     <span
                                         class="status-badge risk-<?php echo esc_attr(get_risk_level($attempt->attempts_count)); ?>">
                                         <?php echo esc_html(get_risk_label(get_risk_level($attempt->attempts_count))); ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <button type="button" class="button button-small show-details"
+                                        data-ua="<?php echo esc_attr($attempt->user_agent); ?>"
+                                        data-referrer="<?php echo esc_attr($attempt->referrer_url); ?>">
+                                        <?php esc_html_e('Show Details', 'cf7-honeypot'); ?>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr class="details-row hidden">
+                                <td colspan="7">
+                                    <div class="details-content">
+                                        <p><strong><?php esc_html_e('Browser:', 'cf7-honeypot'); ?></strong>
+                                            <?php echo esc_html($attempt->user_agent ?: 'Unknown'); ?></p>
+                                        <p><strong><?php esc_html_e('Referrer:', 'cf7-honeypot'); ?></strong>
+                                            <?php echo esc_html($attempt->referrer_url ?: 'Direct Access'); ?></p>
+                                        <p><strong><?php esc_html_e('Total Attempts:', 'cf7-honeypot'); ?></strong>
+                                            <?php echo esc_html($attempt->attempts_count); ?></p>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -209,3 +142,60 @@ function get_risk_label($risk_level)
         </div>
     </div>
 </div>
+
+<!-- Inline Script for Toggling Details -->
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $('.show-details').on('click', function () {
+            $(this).closest('tr').next('.details-row').toggleClass('hidden');
+        });
+    });
+</script>
+
+<!-- Additional Inline Styles -->
+<style>
+    .details-row.hidden {
+        display: none;
+    }
+
+    .details-content {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        margin: 10px;
+    }
+
+    .detailed-stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+
+    .stat-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .stat-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .stat-list li:last-child {
+        border-bottom: none;
+    }
+
+    .show-details {
+        background: #f8f9fa;
+        border-color: #ddd;
+    }
+
+    .show-details:hover {
+        background: #e9ecef;
+    }
+</style>
