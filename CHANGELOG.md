@@ -4,6 +4,21 @@ All notable changes to the CF7 Advanced Honeypot plugin will be documented in th
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-03-29
+### Added
+- Advanced settings management system
+- Country-based blocking functionality
+- Custom notification system
+- Form-specific protection settings
+- Advanced risk assessment configuration
+- Admin JavaScript functionality for dynamic settings
+- Enhanced admin UI with new CSS structure
+
+### Changed
+- Reorganized plugin architecture
+- Improved settings page structure
+- Enhanced administrative interface
+
 ## [Unreleased]
 
 ## [1.1.0] - 2024-03-28

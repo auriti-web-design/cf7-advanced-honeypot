@@ -110,11 +110,17 @@ CF7 Advanced Honeypot System is a sophisticated anti-spam solution for Contact F
 cf7-advanced-honeypot/
 ├── assets/
 │   ├── css/
-│   │   └── admin-style.css
+│   │   ├── admin-style.css
+│   │   └── admin-settings.css
 │   └── js/
+│       └── admin.js
+├── includes/
+│   ├── class-cf7-honeypot-settings.php
+│   └── countries.php
 ├── languages/
 ├── templates/
-│   └── stats-page.php
+│   ├── stats-page.php
+│   └── settings-page.php
 ├── README.md
 └── cf7-advanced-honeypot.php
 ```
@@ -354,8 +360,8 @@ This project is licensed under the GPL v2 or later.
 
 ---
 
-Last Updated: 27/11/2024
+Last Updated: 29/11/2024
 
-Version: 1.0.0
+Version: 1.2.0
 
 Author: Juan Camilo Auriti
