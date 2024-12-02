@@ -434,6 +434,10 @@ class CF7_Advanced_Honeypot
      */
     private function log_spam_attempt($form_id, $triggered_field = '')
     {
+        if (!$this->is_spam_submission()) {
+            return;
+        }
+
         global $wpdb;
         $table_name = $wpdb->prefix . $this->stats_table;
 
@@ -477,6 +481,18 @@ class CF7_Advanced_Honeypot
         }
     }
 
+    private function is_spam_submission()
+    {
+        $field_ids = $this->get_cached_field_ids();
+
+        foreach ($_POST as $key => $value) {
+            if (in_array($key, $field_ids) && !empty($value)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * Estrae l'email dai dati POST

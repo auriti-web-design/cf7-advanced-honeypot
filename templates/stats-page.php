@@ -1,44 +1,90 @@
 <?php
 /**
- * Template Name: CF7 Advanced Honeypot Statistics Page - Enhanced
- * Version: 1.2.0
+ * Template Name: CF7 Advanced Honeypot Statistics Page
+ * Description: Displays comprehensive statistics about spam attempts and form submissions
+ * Version: 1.3.0
+ * Author: Juan Camilo Auriti
+ *
+ * This template renders the main statistics dashboard for the CF7 Advanced Honeypot plugin.
+ * It shows various metrics including:
+ * - Recent spam attempts
+ * - Time-based statistics (24h, 7d, 30d)
+ * - Detailed analysis of spam patterns
+ * - Log management tools
  */
 
-// Prevent direct file access
+// Prevent direct file access for security
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// Initialize pagination parameters
+$items_per_page = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 20; // Default 20 items per page
+$current_page = isset($_GET['paged']) ? max(1, (int) $_GET['paged']) : 1;
+$offset = ($current_page - 1) * $items_per_page;
+
+// Get total number of spam attempts for pagination
+$total_items = $wpdb->get_var("
+    SELECT COUNT(*)
+    FROM {$stats_table}
+    WHERE honeypot_triggered = 1
+");
+$total_pages = ceil($total_items / $items_per_page);
+
+// Fetch paginated spam attempts with related data
+$recent_attempts = $wpdb->get_results($wpdb->prepare("
+    SELECT s.*,
+        p.post_title as form_title,
+        (SELECT COUNT(*)
+         FROM {$stats_table}
+         WHERE ip_address = s.ip_address
+         AND honeypot_triggered = 1) as attempts_count,
+        (SELECT GROUP_CONCAT(DISTINCT form_id)
+         FROM {$stats_table}
+         WHERE ip_address = s.ip_address
+         AND honeypot_triggered = 1) as targeted_forms
+    FROM {$stats_table} s
+    LEFT JOIN {$wpdb->posts} p ON s.form_id = p.ID
+    WHERE s.honeypot_triggered = 1
+    ORDER BY s.created_at DESC
+    LIMIT %d OFFSET %d
+", $items_per_page, $offset));
 ?>
 
-<div class="wrap">
+<!-- Main wrapper - isolated from other admin notices -->
+<div class="cf7-honeypot-wrapper">
     <div class="cf7-honeypot-stats">
-        <!-- Page Header -->
+        <!-- Dashboard Header -->
         <div class="stats-header">
-            <h1><?php esc_html_e('Anti-Spam Protection: Enhanced Statistics and Reports', 'cf7-honeypot'); ?></h1>
+            <h1><?php esc_html_e('Anti-Spam Protection: Statistics and Reports', 'cf7-honeypot'); ?></h1>
             <p><?php esc_html_e('Monitor spam attempts and analyze your website security with detailed insights.', 'cf7-honeypot'); ?>
             </p>
         </div>
 
-        <!-- Statistics Overview -->
+        <!-- Statistics Overview Cards -->
         <div class="stats-overview">
+            <!-- Last 24 Hours Stats -->
             <div class="stat-card">
                 <h3><?php esc_html_e('Last 24 Hours', 'cf7-honeypot'); ?></h3>
                 <div class="stat-number"><?php echo esc_html($last_24h); ?></div>
                 <div class="stat-label"><?php esc_html_e('blocked attempts', 'cf7-honeypot'); ?></div>
             </div>
 
+            <!-- Last 7 Days Stats -->
             <div class="stat-card">
                 <h3><?php esc_html_e('Last 7 Days', 'cf7-honeypot'); ?></h3>
                 <div class="stat-number"><?php echo esc_html($last_7d); ?></div>
                 <div class="stat-label"><?php esc_html_e('blocked attempts', 'cf7-honeypot'); ?></div>
             </div>
 
+            <!-- Last 30 Days Stats -->
             <div class="stat-card">
                 <h3><?php esc_html_e('Last 30 Days', 'cf7-honeypot'); ?></h3>
                 <div class="stat-number"><?php echo esc_html($last_30d); ?></div>
                 <div class="stat-label"><?php esc_html_e('blocked attempts', 'cf7-honeypot'); ?></div>
             </div>
 
+            <!-- Total Stats -->
             <div class="stat-card">
                 <h3><?php esc_html_e('Total', 'cf7-honeypot'); ?></h3>
                 <div class="stat-number"><?php echo esc_html($total_attempts); ?></div>
@@ -46,46 +92,37 @@ if (!defined('ABSPATH')) {
             </div>
         </div>
 
-        <!-- Advanced Statistics Dashboard -->
-        <div class="advanced-stats-section">
-            <h2><?php esc_html_e('Detailed Analysis', 'cf7-honeypot'); ?></h2>
-            <div class="stats-grid">
-                <?php if (!empty($summary_stats)): ?>
-                    <?php
-                    $latest_stats = reset($summary_stats); // Get most recent day's stats
-                    if ($latest_stats):
-                        ?>
-                        <div class="detailed-stat-card">
-                            <h4><?php esc_html_e('Today\'s Overview', 'cf7-honeypot'); ?></h4>
-                            <ul class="stat-list">
-                                <li>
-                                    <span class="stat-label"><?php esc_html_e('Unique IPs:', 'cf7-honeypot'); ?></span>
-                                    <span class="stat-value"><?php echo esc_html($latest_stats->unique_ips); ?></span>
-                                </li>
-                                <li>
-                                    <span class="stat-label"><?php esc_html_e('Unique Browsers:', 'cf7-honeypot'); ?></span>
-                                    <span class="stat-value"><?php echo esc_html($latest_stats->unique_browsers); ?></span>
-                                </li>
-                                <li>
-                                    <span class="stat-label"><?php esc_html_e('Forms Affected:', 'cf7-honeypot'); ?></span>
-                                    <span class="stat-value"><?php echo esc_html($latest_stats->forms_affected); ?></span>
-                                </li>
-                                <li>
-                                    <span
-                                        class="stat-label"><?php esc_html_e('Honeypot Fields Triggered:', 'cf7-honeypot'); ?></span>
-                                    <span
-                                        class="stat-value"><?php echo esc_html($latest_stats->unique_fields_triggered); ?></span>
-                                </li>
-                            </ul>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
+        <!-- Log Management Section -->
+        <div class="cleanup-section">
+            <h2><?php esc_html_e('Log Management', 'cf7-honeypot'); ?></h2>
+            <div class="cleanup-options">
+                <form method="post" class="cleanup-form">
+                    <?php wp_nonce_field('cf7_honeypot_cleanup', 'cleanup_nonce'); ?>
+
+                    <!-- Cleanup buttons for different time periods -->
+                    <button type="submit" name="cleanup_period" value="1" class="cleanup-button">
+                        <?php esc_html_e('Clear Last 24 Hours', 'cf7-honeypot'); ?>
+                    </button>
+
+                    <button type="submit" name="cleanup_period" value="7" class="cleanup-button">
+                        <?php esc_html_e('Clear Last 7 Days', 'cf7-honeypot'); ?>
+                    </button>
+
+                    <button type="submit" name="cleanup_period" value="30" class="cleanup-button">
+                        <?php esc_html_e('Clear Last 30 Days', 'cf7-honeypot'); ?>
+                    </button>
+
+                    <button type="submit" name="cleanup_period" value="all" class="cleanup-button danger">
+                        <?php esc_html_e('Clear All Logs', 'cf7-honeypot'); ?>
+                    </button>
+                </form>
             </div>
         </div>
 
-        <!-- Recent Attempts Table with Enhanced Information -->
+        <!-- Recent Attempts Table -->
         <div class="attempts-table">
             <h2><?php esc_html_e('Recent Spam Attempts', 'cf7-honeypot'); ?></h2>
+
             <?php if (!empty($recent_attempts)): ?>
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
@@ -101,6 +138,7 @@ if (!defined('ABSPATH')) {
                     </thead>
                     <tbody>
                         <?php foreach ($recent_attempts as $attempt): ?>
+                            <!-- Main attempt row -->
                             <tr>
                                 <td><?php echo esc_html(wp_date('d/m/Y H:i:s', strtotime($attempt->created_at))); ?></td>
                                 <td><?php echo esc_html($attempt->form_title ?: 'Form #' . $attempt->form_id); ?></td>
@@ -121,6 +159,7 @@ if (!defined('ABSPATH')) {
                                     </button>
                                 </td>
                             </tr>
+                            <!-- Details row (hidden by default) -->
                             <tr class="details-row hidden">
                                 <td colspan="7">
                                     <div class="details-content">
@@ -136,6 +175,46 @@ if (!defined('ABSPATH')) {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+
+                <!-- Pagination Controls -->
+                <div class="tablenav bottom">
+                    <!-- Items per page selector -->
+                    <div class="alignleft actions">
+                        <select onchange="window.location.href='?page=cf7-honeypot-stats&per_page=' + this.value">
+                            <?php foreach ([10, 20, 50, 100] as $per_page): ?>
+                                <option value="<?php echo $per_page; ?>" <?php selected($items_per_page, $per_page); ?>>
+                                    <?php printf(__('%d per page', 'cf7-honeypot'), $per_page); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Pagination links -->
+                    <div class="tablenav-pages">
+                        <span class="displaying-num">
+                            <?php printf(
+                                _n('%s item', '%s items', $total_items, 'cf7-honeypot'),
+                                number_format_i18n($total_items)
+                            ); ?>
+                        </span>
+
+                        <?php if ($total_pages > 1): ?>
+                            <span class="pagination-links">
+                                <?php
+                                echo paginate_links(array(
+                                    'base' => add_query_arg('paged', '%#%'),
+                                    'format' => '',
+                                    'prev_text' => __('&laquo;'),
+                                    'next_text' => __('&raquo;'),
+                                    'total' => $total_pages,
+                                    'current' => $current_page,
+                                    'type' => 'plain'
+                                ));
+                                ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                </div>
             <?php else: ?>
                 <p class="no-attempts"><?php esc_html_e('No spam attempts detected so far. 🎉', 'cf7-honeypot'); ?></p>
             <?php endif; ?>
@@ -143,59 +222,17 @@ if (!defined('ABSPATH')) {
     </div>
 </div>
 
-<!-- Inline Script for Toggling Details -->
+<!-- JavaScript for toggling details -->
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
+        // Initialize detail toggles
         $('.show-details').on('click', function () {
             $(this).closest('tr').next('.details-row').toggleClass('hidden');
         });
+
+        // Initialize any tooltips
+        if (typeof tippy !== 'undefined') {
+            tippy('[data-tippy-content]');
+        }
     });
 </script>
-
-<!-- Additional Inline Styles -->
-<style>
-    .details-row.hidden {
-        display: none;
-    }
-
-    .details-content {
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 4px;
-        margin: 10px;
-    }
-
-    .detailed-stat-card {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-    }
-
-    .stat-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-    }
-
-    .stat-list li {
-        display: flex;
-        justify-content: space-between;
-        padding: 8px 0;
-        border-bottom: 1px solid #eee;
-    }
-
-    .stat-list li:last-child {
-        border-bottom: none;
-    }
-
-    .show-details {
-        background: #f8f9fa;
-        border-color: #ddd;
-    }
-
-    .show-details:hover {
-        background: #e9ecef;
-    }
-</style>
