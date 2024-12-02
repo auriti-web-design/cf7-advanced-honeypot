@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Advanced CF7 Honeypot System
  * Description: Advanced anti-spam protection system for Contact Form 7 with enhanced logging and CFDB7 integration
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Juan Camilo Auriti
  * Author URI: https://auritidesign.it
  * Text Domain: cf7-honeypot
@@ -55,6 +55,7 @@ class CF7_Advanced_Honeypot
         add_action('init', array($this, 'init_honeypot'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('plugins_loaded', array($this, 'check_db_updates'));
+        add_action('init', array($this, 'init_ajax_handlers'));
 
         // Hook per la validazione con priorità alta
         add_filter('wpcf7_validate', array($this, 'validate_honeypot'), 1, 2);
@@ -72,6 +73,7 @@ class CF7_Advanced_Honeypot
             wp_schedule_event(time(), 'twiceweekly', 'cf7_honeypot_cleanup');
         }
         add_action('cf7_honeypot_cleanup', array($this, 'cleanup_old_logs'));
+        add_action('admin_init', array($this, 'handle_cleanup_request'));
     }
 
     public static function activate_plugin()
@@ -380,45 +382,91 @@ class CF7_Advanced_Honeypot
         return $styles . $content . $hidden_field;
     }
 
+    /**
+     * Validates honeypot fields and handles spam detection
+     *
+     * @param WPCF7_Validation $result The validation result object
+     * @param array $tags Form tags array
+     * @return WPCF7_Validation Modified validation result
+     */
     public function validate_honeypot($result, $tags)
     {
-        global $wpdb;
+        // Get cached field IDs
         $field_ids = $this->get_cached_field_ids();
 
-        foreach ($_POST as $key => $value) {
-            if (in_array($key, $field_ids) && !empty($value)) {
-                // Ottieni l'ID del form
-                $form_id = isset($_POST['_wpcf7']) ? (int) $_POST['_wpcf7'] : 0;
+        // Check for spam submission
+        if ($this->is_spam_submission($field_ids)) {
+            // Get form ID from submission
+            $form_id = isset($_POST['_wpcf7']) ? (int) $_POST['_wpcf7'] : 0;
 
-                // Logga il tentativo di spam
-                $this->log_spam_attempt($form_id, $key);
+            // Get triggered field
+            $triggered_field = $this->get_triggered_field($field_ids);
 
-                // Invalida il form con messaggio generico
-                $result->invalidate('spam', __('Impossibile inviare il messaggio.', 'cf7-honeypot'));
+            // Get form settings
+            $settings = CF7_Honeypot_Settings::get_instance()->get_form_settings($form_id);
 
-                // Imposta lo stato spam a livello di submission
+            // Check if protection is enabled for this form
+            if (!empty($settings['enabled'])) {
+                // Log the spam attempt
+                $this->log_spam_attempt($form_id, $triggered_field);
+
+                // Get custom error message if set
+                $error_message = $settings['custom_error_message'] ?? __('Unable to send message.', 'cf7-honeypot');
+
+                // Invalidate the form
+                $result->invalidate('spam', $error_message);
+
+                // Get submission instance
                 $submission = WPCF7_Submission::get_instance();
                 if ($submission) {
+                    // Mark as spam
                     $submission->set_status('spam');
+
+                    // Set response message
+                    if (method_exists($submission, 'set_response')) {
+                        $submission->set_response($error_message);
+                    }
                 }
 
-                // Previeni l'invio email
+                // Prevent email sending
                 add_filter('wpcf7_skip_mail', '__return_true');
 
-                // Blocca il salvataggio CFDB7
+                // Block CFDB7 save
                 add_filter('cfdb7_before_save_data', '__return_false');
 
-                // Rimuovi tutte le azioni successive
+                // Remove subsequent actions
                 remove_all_actions('wpcf7_before_send_mail');
                 remove_all_actions('wpcf7_mail_sent');
                 remove_all_actions('wpcf7_mail_failed');
 
-                // Debug log se necessario
+                // Trigger spam detected action for extensions
+                do_action('cf7_honeypot_spam_detected', array(
+                    'form_id' => $form_id,
+                    'triggered_field' => $triggered_field,
+                    'ip_address' => $this->get_client_ip(),
+                    'email' => $this->extract_email_from_post(),
+                    'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ?
+                        sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : '',
+                    'risk_score' => $this->calculate_risk_score(
+                        $this->get_client_ip(),
+                        $this->extract_email_from_post()
+                    )
+                ));
+
+                // Log debug information if enabled
                 if (defined('WP_DEBUG') && WP_DEBUG) {
-                    error_log('CF7 Honeypot: Spam detected in form ' . $form_id);
+                    error_log(sprintf(
+                        'CF7 Honeypot: Spam detected in form %d (Field: %s, IP: %s)',
+                        $form_id,
+                        $triggered_field,
+                        $this->get_client_ip()
+                    ));
                 }
 
-                break;
+                // Optional: Block IP if threshold exceeded
+                if ($this->should_block_ip($this->get_client_ip())) {
+                    $this->block_ip($this->get_client_ip());
+                }
             }
         }
 
@@ -426,25 +474,118 @@ class CF7_Advanced_Honeypot
     }
 
     /**
-     * Logga i tentativi di spam con informazioni dettagliate
+     * Checks if an IP should be blocked based on spam attempts
      *
-     * @param int $form_id
-     * @param string $triggered_field
-     * @return void
+     * @param string $ip IP address to check
+     * @return boolean
      */
-    private function log_spam_attempt($form_id, $triggered_field = '')
+    private function should_block_ip($ip)
     {
-        if (!$this->is_spam_submission()) {
-            return;
-        }
-
         global $wpdb;
         $table_name = $wpdb->prefix . $this->stats_table;
 
-        // Verifica e aggiorna la struttura del database
+        // Get block threshold from settings
+        $settings = get_option('cf7_honeypot_settings');
+        $threshold = isset($settings['block_threshold']) ? (int) $settings['block_threshold'] : 5;
+
+        // Count recent attempts from this IP
+        $attempts = $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$table_name}
+        WHERE ip_address = %s
+        AND created_at > DATE_SUB(NOW(), INTERVAL 24 HOUR)",
+            $ip
+        ));
+
+        return $attempts >= $threshold;
+    }
+
+    /**
+     * Blocks an IP address
+     *
+     * @param string $ip IP address to block
+     */
+    private function block_ip($ip)
+    {
+        $blocked_ips = get_option('cf7_honeypot_blocked_ips', array());
+        $blocked_ips[$ip] = time();
+        update_option('cf7_honeypot_blocked_ips', $blocked_ips);
+    }
+
+    /**
+     * Gestisce le richieste di pulizia dei log
+     */
+    public function handle_cleanup_request()
+    {
+        // Verifica se siamo nella pagina corretta
+        if (!isset($_REQUEST['page']) || $_REQUEST['page'] !== 'cf7-honeypot-stats') {
+            return;
+        }
+
+        // Verifica se è stata inviata una richiesta di pulizia
+        if (!isset($_POST['cleanup_period'])) {
+            return;
+        }
+
+        // Verifica il nonce
+        if (!isset($_POST['cleanup_nonce']) || !wp_verify_nonce($_POST['cleanup_nonce'], 'cf7_honeypot_cleanup')) {
+            wp_die('Security check failed');
+        }
+
+        // Verifica i permessi
+        if (!current_user_can('manage_options')) {
+            wp_die('Unauthorized access');
+        }
+
+        $period = sanitize_text_field($_POST['cleanup_period']);
+
+        // Esegui la pulizia
+        $this->cleanup_old_logs($period);
+
+        // Imposta un messaggio di successo
+        $message = '';
+        switch ($period) {
+            case '1':
+                $message = __('Logs from the last 24 hours have been cleared.', 'cf7-honeypot');
+                break;
+            case '7':
+                $message = __('Logs from the last 7 days have been cleared.', 'cf7-honeypot');
+                break;
+            case '30':
+                $message = __('Logs from the last 30 days have been cleared.', 'cf7-honeypot');
+                break;
+            case 'all':
+                $message = __('All logs have been cleared.', 'cf7-honeypot');
+                break;
+        }
+
+        // Redirect con messaggio
+        wp_redirect(add_query_arg(
+            array(
+                'page' => 'cf7-honeypot-stats',
+                'message' => urlencode($message),
+                'status' => 'success'
+            ),
+            admin_url('admin.php')
+        ));
+        exit;
+    }
+
+    /**
+     * Logs a spam attempt with detailed information
+     *
+     * @param int    $form_id         The ID of the form that triggered the spam detection
+     * @param string $triggered_field The field ID that triggered the spam detection
+     * @return bool|int False on failure, number of rows affected on success
+     */
+    private function log_spam_attempt($form_id, $triggered_field = '')
+    {
+        global $wpdb;
+        $table_name = $wpdb->prefix . $this->stats_table;
+
+        // Verify and update database structure if needed
         $this->update_database_structure();
 
-        // Preparazione dei dati
+        // Prepare data for logging
         $data = array(
             'form_id' => $form_id,
             'honeypot_triggered' => 1,
@@ -461,7 +602,7 @@ class CF7_Advanced_Honeypot
             'created_at' => current_time('mysql', true)
         );
 
-        // Verifica quali colonne esistono effettivamente
+        // Verify which columns actually exist in the database
         $columns = $wpdb->get_col("SHOW COLUMNS FROM `{$table_name}`");
         foreach ($data as $key => $value) {
             if (!in_array($key, $columns)) {
@@ -469,21 +610,42 @@ class CF7_Advanced_Honeypot
             }
         }
 
-        // Inserimento sicuro
-        $wpdb->insert(
-            $table_name,
-            $data,
-            array_fill(0, count($data), '%s')
-        );
+        // Format for wpdb
+        $format = array_fill(0, count($data), '%s');
 
+        // Attempt to insert the data
+        $result = $wpdb->insert($table_name, $data, $format);
+
+        // Log any database errors if WP_DEBUG is enabled
         if ($wpdb->last_error) {
-            error_log('CF7 Honeypot Error: ' . $wpdb->last_error);
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('CF7 Honeypot Error: ' . $wpdb->last_error);
+            }
+            return false;
         }
+
+        // Trigger action for potential extensions
+        do_action('cf7_honeypot_after_log_spam', $form_id, $data);
+
+        // Clear any relevant caches
+        wp_cache_delete('cf7_honeypot_recent_attempts');
+        delete_transient('cf7_honeypot_stats_' . $form_id);
+
+        // Return the result
+        return $result;
     }
 
-    private function is_spam_submission()
+    /**
+     * Checks if the current submission is spam
+     *
+     * @param array $field_ids Array of honeypot field IDs
+     * @return boolean
+     */
+    private function is_spam_submission($field_ids = null)
     {
-        $field_ids = $this->get_cached_field_ids();
+        if ($field_ids === null) {
+            $field_ids = $this->get_cached_field_ids();
+        }
 
         foreach ($_POST as $key => $value) {
             if (in_array($key, $field_ids) && !empty($value)) {
@@ -492,6 +654,22 @@ class CF7_Advanced_Honeypot
         }
 
         return false;
+    }
+
+    /**
+     * Gets the first triggered honeypot field
+     *
+     * @param array $field_ids Array of honeypot field IDs
+     * @return string|null
+     */
+    private function get_triggered_field($field_ids)
+    {
+        foreach ($_POST as $key => $value) {
+            if (in_array($key, $field_ids) && !empty($value)) {
+                return $key;
+            }
+        }
+        return null;
     }
 
     /**
@@ -716,6 +894,54 @@ class CF7_Advanced_Honeypot
         return $spam;
     }
 
+    public function init_ajax_handlers()
+    {
+        add_action('wp_ajax_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
+        add_action('wp_ajax_nopriv_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
+    }
+
+    public function ajax_delete_records()
+    {
+        check_ajax_referer('cf7_honeypot_delete_records', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+        }
+
+        $ids = isset($_POST['ids']) ? array_map('intval', $_POST['ids']) : array();
+
+        if (empty($ids)) {
+            wp_send_json_error('No records selected');
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . $this->stats_table;
+
+        // Esegui la cancellazione
+        $deleted = $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM $table_name WHERE id IN (" . implode(',', array_fill(0, count($ids), '%d')) . ")",
+                $ids
+            )
+        );
+
+        if ($deleted === false) {
+            wp_send_json_error('Database error');
+        }
+
+        wp_send_json_success(array(
+            'message' => sprintf(
+                _n(
+                    '%s record deleted successfully.',
+                    '%s records deleted successfully.',
+                    $deleted,
+                    'cf7-honeypot'
+                ),
+                number_format_i18n($deleted)
+            )
+        ));
+    }
+
     /**
      * Verifica la presenza di spam prima del salvataggio CFDB7
      *
@@ -906,25 +1132,39 @@ class CF7_Advanced_Honeypot
         include(plugin_dir_path(__FILE__) . 'templates/stats-page.php');
     }
 
+    /**
+     * Miglioriamo anche la funzione di pulizia
+     */
     public function cleanup_old_logs($period = '30')
     {
         global $wpdb;
         $stats_table = $wpdb->prefix . $this->stats_table;
 
         if ($period === 'all') {
-            $wpdb->query("TRUNCATE TABLE {$stats_table}");
+            $result = $wpdb->query("TRUNCATE TABLE {$stats_table}");
         } else {
             $days = intval($period);
             if (!in_array($days, [1, 7, 30])) {
                 $days = 30;
             }
-            $wpdb->query(
+            $result = $wpdb->query(
                 $wpdb->prepare(
                     "DELETE FROM {$stats_table} WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
                     $days
                 )
             );
         }
+
+        // Log dell'operazione se attivo WP_DEBUG
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            error_log(sprintf(
+                'CF7 Honeypot: Cleaned up logs. Period: %s, Rows affected: %d',
+                $period,
+                $result
+            ));
+        }
+
+        return $result;
     }
 
     public static function deactivate()

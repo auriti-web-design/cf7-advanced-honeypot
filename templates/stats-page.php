@@ -53,6 +53,17 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
 
 <!-- Main wrapper - isolated from other admin notices -->
 <div class="cf7-honeypot-wrapper">
+    <?php
+    if (isset($_GET['message']) && isset($_GET['status'])) {
+        $message = sanitize_text_field(urldecode($_GET['message']));
+        $status = sanitize_text_field($_GET['status']);
+        ?>
+        <div class="notice notice-<?php echo esc_attr($status); ?> is-dismissible">
+            <p><?php echo esc_html($message); ?></p>
+        </div>
+        <?php
+    }
+    ?>
     <div class="cf7-honeypot-stats">
         <!-- Dashboard Header -->
         <div class="stats-header">
@@ -98,20 +109,15 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
             <div class="cleanup-options">
                 <form method="post" class="cleanup-form">
                     <?php wp_nonce_field('cf7_honeypot_cleanup', 'cleanup_nonce'); ?>
-
-                    <!-- Cleanup buttons for different time periods -->
                     <button type="submit" name="cleanup_period" value="1" class="cleanup-button">
                         <?php esc_html_e('Clear Last 24 Hours', 'cf7-honeypot'); ?>
                     </button>
-
                     <button type="submit" name="cleanup_period" value="7" class="cleanup-button">
                         <?php esc_html_e('Clear Last 7 Days', 'cf7-honeypot'); ?>
                     </button>
-
                     <button type="submit" name="cleanup_period" value="30" class="cleanup-button">
                         <?php esc_html_e('Clear Last 30 Days', 'cf7-honeypot'); ?>
                     </button>
-
                     <button type="submit" name="cleanup_period" value="all" class="cleanup-button danger">
                         <?php esc_html_e('Clear All Logs', 'cf7-honeypot'); ?>
                     </button>
@@ -127,19 +133,28 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
-                            <th width="12%"><?php esc_html_e('Date/Time', 'cf7-honeypot'); ?></th>
-                            <th width="15%"><?php esc_html_e('Form', 'cf7-honeypot'); ?></th>
-                            <th width="12%"><?php esc_html_e('IP Address', 'cf7-honeypot'); ?></th>
-                            <th width="15%"><?php esc_html_e('Email', 'cf7-honeypot'); ?></th>
-                            <th width="12%"><?php esc_html_e('Triggered Field', 'cf7-honeypot'); ?></th>
-                            <th width="10%"><?php esc_html_e('Status', 'cf7-honeypot'); ?></th>
-                            <th width="24%"><?php esc_html_e('Additional Info', 'cf7-honeypot'); ?></th>
+                            <th scope="col" class="manage-column column-cb check-column">
+                                <div class="checkbox-with-label">
+                                    <input type="checkbox" id="cb-select-all-1">
+                                    <span class="select-all-label"><?php esc_html_e('Select All', 'cf7-honeypot'); ?></span>
+                                </div>
+                            </th>
+                            <th scope="col" style="width: 12%;"><?php esc_html_e('Date/Time', 'cf7-honeypot'); ?></th>
+                            <th scope="col" style="width: 15%;"><?php esc_html_e('Form', 'cf7-honeypot'); ?></th>
+                            <th scope="col" style="width: 12%;"><?php esc_html_e('IP Address', 'cf7-honeypot'); ?></th>
+                            <th scope="col" style="width: 15%;"><?php esc_html_e('Email', 'cf7-honeypot'); ?></th>
+                            <th scope="col" style="width: 12%;"><?php esc_html_e('Triggered Field', 'cf7-honeypot'); ?></th>
+                            <th scope="col" style="width: 10%;"><?php esc_html_e('Risk Level', 'cf7-honeypot'); ?></th>
+                            <th scope="col" style="width: 21%;"><?php esc_html_e('Actions', 'cf7-honeypot'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($recent_attempts as $attempt): ?>
                             <!-- Main attempt row -->
-                            <tr>
+                            <tr data-record-id="<?php echo esc_attr($attempt->id); ?>">
+                                <td class="column-cb check-column">
+                                    <input type="checkbox" name="bulk-delete[]" value="<?php echo esc_attr($attempt->id); ?>">
+                                    </th>
                                 <td><?php echo esc_html(wp_date('d/m/Y H:i:s', strtotime($attempt->created_at))); ?></td>
                                 <td><?php echo esc_html($attempt->form_title ?: 'Form #' . $attempt->form_id); ?></td>
                                 <td><?php echo esc_html($attempt->ip_address); ?></td>
@@ -161,7 +176,7 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
                             </tr>
                             <!-- Details row (hidden by default) -->
                             <tr class="details-row hidden">
-                                <td colspan="7">
+                                <td colspan="8">
                                     <div class="details-content">
                                         <p><strong><?php esc_html_e('Browser:', 'cf7-honeypot'); ?></strong>
                                             <?php echo esc_html($attempt->user_agent ?: 'Unknown'); ?></p>
@@ -176,63 +191,84 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
                     </tbody>
                 </table>
 
-                <!-- Pagination Controls -->
+                <!-- Bulk Actions -->
                 <div class="tablenav bottom">
-                    <!-- Items per page selector -->
-                    <div class="alignleft actions">
-                        <select onchange="window.location.href='?page=cf7-honeypot-stats&per_page=' + this.value">
-                            <?php foreach ([10, 20, 50, 100] as $per_page): ?>
-                                <option value="<?php echo $per_page; ?>" <?php selected($items_per_page, $per_page); ?>>
-                                    <?php printf(__('%d per page', 'cf7-honeypot'), $per_page); ?>
-                                </option>
-                            <?php endforeach; ?>
+                    <div class="alignleft actions bulkactions">
+                        <label for="bulk-action-selector-bottom" class="screen-reader-text">
+                            <?php esc_html_e('Select bulk action', 'cf7-honeypot'); ?>
+                        </label>
+                        <select name="action" id="bulk-action-selector-bottom">
+                            <option value="-1"><?php esc_html_e('Bulk Actions', 'cf7-honeypot'); ?></option>
+                            <option value="delete"><?php esc_html_e('Delete', 'cf7-honeypot'); ?></option>
                         </select>
+                        <button type="submit" id="doaction" class="button action"
+                            onclick="return confirm('<?php esc_attr_e('Are you sure you want to delete the selected items?', 'cf7-honeypot'); ?>')">
+                            <?php esc_html_e('Apply', 'cf7-honeypot'); ?>
+                        </button>
                     </div>
 
-                    <!-- Pagination links -->
-                    <div class="tablenav-pages">
-                        <span class="displaying-num">
-                            <?php printf(
-                                _n('%s item', '%s items', $total_items, 'cf7-honeypot'),
-                                number_format_i18n($total_items)
-                            ); ?>
-                        </span>
+                    <!-- Pagination Controls -->
+                    <div class="tablenav bottom">
+                        <!-- Items per page selector -->
+                        <div class="alignleft actions">
+                            <select onchange="window.location.href='?page=cf7-honeypot-stats&per_page=' + this.value">
+                                <?php foreach ([10, 20, 50, 100] as $per_page): ?>
+                                    <option value="<?php echo $per_page; ?>" <?php selected($items_per_page, $per_page); ?>>
+                                        <?php printf(__('%d per page', 'cf7-honeypot'), $per_page); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-                        <?php if ($total_pages > 1): ?>
-                            <span class="pagination-links">
-                                <?php
-                                echo paginate_links(array(
-                                    'base' => add_query_arg('paged', '%#%'),
-                                    'format' => '',
-                                    'prev_text' => __('&laquo;'),
-                                    'next_text' => __('&raquo;'),
-                                    'total' => $total_pages,
-                                    'current' => $current_page,
-                                    'type' => 'plain'
-                                ));
-                                ?>
+                        <!-- Pagination links -->
+                        <div class="tablenav-pages">
+                            <span class="displaying-num">
+                                <?php printf(
+                                    _n('%s item', '%s items', $total_items, 'cf7-honeypot'),
+                                    number_format_i18n($total_items)
+                                ); ?>
                             </span>
-                        <?php endif; ?>
+
+                            <?php if ($total_pages > 1): ?>
+                                <span class="pagination-links">
+                                    <?php
+                                    echo paginate_links(array(
+                                        'base' => add_query_arg('paged', '%#%'),
+                                        'format' => '',
+                                        'prev_text' => __('&laquo;'),
+                                        'next_text' => __('&raquo;'),
+                                        'total' => $total_pages,
+                                        'current' => $current_page,
+                                        'type' => 'plain'
+                                    ));
+                                    ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-            <?php else: ?>
-                <p class="no-attempts"><?php esc_html_e('No spam attempts detected so far. 🎉', 'cf7-honeypot'); ?></p>
-            <?php endif; ?>
+                <?php else: ?>
+                    <p class="no-attempts"><?php esc_html_e('No spam attempts detected so far. 🎉', 'cf7-honeypot'); ?></p>
+                <?php endif; ?>
+            </div>
         </div>
+        <?php
+        wp_localize_script('cf7-honeypot-admin', 'cf7HoneypotAdmin', array(
+            'deleteNonce' => wp_create_nonce('cf7_honeypot_delete_records')
+        ));
+        ?>
     </div>
-</div>
 
-<!-- JavaScript for toggling details -->
-<script type="text/javascript">
-    jQuery(document).ready(function ($) {
-        // Initialize detail toggles
-        $('.show-details').on('click', function () {
-            $(this).closest('tr').next('.details-row').toggleClass('hidden');
+    <!-- JavaScript for toggling details -->
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            // Initialize detail toggles
+            $('.show-details').on('click', function () {
+                $(this).closest('tr').next('.details-row').toggleClass('hidden');
+            });
+
+            // Initialize any tooltips
+            if (typeof tippy !== 'undefined') {
+                tippy('[data-tippy-content]');
+            }
         });
-
-        // Initialize any tooltips
-        if (typeof tippy !== 'undefined') {
-            tippy('[data-tippy-content]');
-        }
-    });
-</script>
+    </script>
