@@ -55,4 +55,10 @@ class CF7RiskScoreTest extends TestCase
     {
         $this->assertLessThanOrEqual(100, $this->calculate(50, 50));
     }
+
+    public function testScoreWithEmptyEmail()
+    {
+        $this->assertSame(0, $this->calculate(0, 0, ''));
+        $this->assertSame(30, $this->calculate(6, 0, ''));
+    }
 }
