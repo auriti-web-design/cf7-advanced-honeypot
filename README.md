@@ -374,6 +374,6 @@ This project is licensed under the GPL v2 or later.
 
 Last Updated: 29/11/2024
 
-Version: 1.2.0
+Version: 1.3.1
 
 Author: Juan Camilo Auriti

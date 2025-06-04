@@ -2,7 +2,7 @@
 /**
  * Template Name: CF7 Advanced Honeypot Statistics Page
  * Description: Displays comprehensive statistics about spam attempts and form submissions
- * Version: 1.3.0
+ * Version: 1.3.1
  * Author: Juan Camilo Auriti
  *
  * This template renders the main statistics dashboard for the CF7 Advanced Honeypot plugin.
