@@ -394,6 +394,57 @@ class CF7_Advanced_Honeypot
         // Get cached field IDs
         $field_ids = $this->get_cached_field_ids();
 
+        // Country blocking check
+        $blocked_countries = CF7_Honeypot_Settings::get_instance()->get_setting('blocked_countries', array());
+        $client_ip = $this->get_client_ip();
+        $country_code = $this->get_country_from_ip($client_ip);
+
+        if (!empty($blocked_countries) && in_array($country_code, $blocked_countries, true)) {
+            $form_id = isset($_POST['_wpcf7']) ? (int) $_POST['_wpcf7'] : 0;
+            $settings = CF7_Honeypot_Settings::get_instance()->get_form_settings($form_id);
+
+            $this->log_spam_attempt($form_id, 'country_block');
+
+            $error_message = $settings['custom_error_message'] ?? __('Unable to send message.', 'cf7-honeypot');
+
+            $result->invalidate('spam', $error_message);
+
+            $submission = WPCF7_Submission::get_instance();
+            if ($submission) {
+                $submission->set_status('spam');
+                if (method_exists($submission, 'set_response')) {
+                    $submission->set_response($error_message);
+                }
+            }
+
+            add_filter('wpcf7_skip_mail', '__return_true');
+            add_filter('cfdb7_before_save_data', '__return_false');
+
+            remove_all_actions('wpcf7_before_send_mail');
+            remove_all_actions('wpcf7_mail_sent');
+            remove_all_actions('wpcf7_mail_failed');
+
+            do_action('cf7_honeypot_spam_detected', array(
+                'form_id' => $form_id,
+                'triggered_field' => 'country_block',
+                'ip_address' => $client_ip,
+                'email' => $this->extract_email_from_post(),
+                'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field($_SERVER['HTTP_USER_AGENT']) : '',
+                'risk_score' => $this->calculate_risk_score($client_ip, $this->extract_email_from_post()),
+                'country_code' => $country_code,
+            ));
+
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log(sprintf('CF7 Honeypot: Submission blocked for country %s', $country_code));
+            }
+
+            if ($this->should_block_ip($client_ip)) {
+                $this->block_ip($client_ip);
+            }
+
+            return $result;
+        }
+
         // Check for spam submission
         if ($this->is_spam_submission($field_ids)) {
             // Get form ID from submission
@@ -775,7 +826,25 @@ class CF7_Advanced_Honeypot
      */
     private function get_country_from_ip($ip)
     {
-        // Implementazione base - in produzione usare un servizio GeoIP
+        $ip = sanitize_text_field($ip);
+
+        if (empty($ip) || 'UNKNOWN' === $ip) {
+            return 'XX';
+        }
+
+        $response = wp_remote_get('http://ip-api.com/json/' . $ip . '?fields=countryCode');
+
+        if (is_wp_error($response)) {
+            return 'XX';
+        }
+
+        $body = wp_remote_retrieve_body($response);
+        $data = json_decode($body, true);
+
+        if (isset($data['countryCode'])) {
+            return strtoupper(sanitize_text_field($data['countryCode']));
+        }
+
         return 'XX';
     }
 
