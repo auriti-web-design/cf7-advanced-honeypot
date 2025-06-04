@@ -41,13 +41,9 @@
          */
         initCountrySelect() {
             $('.country-select').select2({
-                placeholder: cf7HoneypotAdmin.i18n.selectCountries,
+                placeholder: 'Select countries to block...',
                 closeOnSelect: false,
                 width: '100%',
-                language: {
-                    searching: () => cf7HoneypotAdmin.i18n.searching,
-                    noResults: () => cf7HoneypotAdmin.i18n.noResults
-                },
                 templateResult: function (state) {
                     if (!state.id) return state.text;
                     return $('<span>' + state.text + '</span>');
@@ -115,11 +111,11 @@
                 <div class="question-row">
                     <input type="text"
                            name="cf7_honeypot_settings[custom_questions][${index}][question]"
-                           placeholder="${cf7HoneypotAdmin.i18n.question}"
+                           placeholder="Question"
                            class="question-input">
                     <input type="text"
                            name="cf7_honeypot_settings[custom_questions][${index}][answer]"
-                           placeholder="${cf7HoneypotAdmin.i18n.answer}"
+                           placeholder="Answer"
                            class="answer-input">
                     <button type="button" class="button remove-question">
                         <span class="dashicons dashicons-trash"></span>
@@ -168,7 +164,7 @@
             form.find('input[type="email"]').each((i, field) => {
                 if (field.value && !this.isValidEmail(field.value)) {
                     isValid = false;
-                    this.addError($(field), cf7HoneypotAdmin.i18n.invalidEmail);
+                    this.addError($(field), 'Invalid email format');
                 }
             });
 
@@ -184,7 +180,7 @@
             const value = $field.val().trim();
 
             if ($field.prop('required') && !value) {
-                this.addError($field, cf7HoneypotAdmin.i18n.requiredField);
+                this.addError($field, 'This field is required');
                 return false;
             }
 
@@ -282,11 +278,11 @@
                     }).get();
 
                 if (selectedIds.length === 0) {
-                    alert(cf7HoneypotAdmin.i18n.selectOneRecord);
+                    alert('Please select at least one record to delete');
                     return;
                 }
 
-                if (confirm(cf7HoneypotAdmin.i18n.deleteSelected)) {
+                if (confirm('Are you sure you want to delete the selected records?')) {
                     this.deleteSelectedRecords(selectedIds);
                 }
             });
@@ -327,7 +323,7 @@
         initBlockedIps() {
             $('.unblock-ip').on('click', function () {
                 const ip = $(this).data('ip');
-                if (!confirm(cf7HoneypotAdmin.i18n.unblockIp.replace('%s', ip))) return;
+                if (!confirm('Unblock ' + ip + '?')) return;
                 $.post(ajaxurl, {
                     action: 'cf7_honeypot_unblock_ip',
                     ip: ip,
@@ -336,7 +332,7 @@
                     if (response.success) {
                         $("tr[data-ip='" + ip + "']").fadeOut(300, function () { $(this).remove(); });
                     } else {
-                        alert(cf7HoneypotAdmin.i18n.error);
+                        alert('Error');
                     }
                 });
             });
