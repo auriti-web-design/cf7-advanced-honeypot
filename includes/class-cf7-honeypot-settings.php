@@ -14,22 +14,10 @@ class CF7_Honeypot_Settings
 
     private function __construct()
     {
-        add_action('admin_menu', array($this, 'add_settings_page'));
         add_action('admin_init', array($this, 'register_settings'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
     }
 
-    public function add_settings_page()
-    {
-        add_submenu_page(
-            'cf7-honeypot-stats',
-            __('Blocked IPs', 'cf7-honeypot'),
-            __('Blocked IPs', 'cf7-honeypot'),
-            'manage_options',
-            'cf7-honeypot-blocked-ips',
-            array($this, 'render_blocked_ips_page')
-        );
-    }
 
     public function register_settings()
     {
