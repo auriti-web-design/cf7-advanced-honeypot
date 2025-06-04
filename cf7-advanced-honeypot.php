@@ -74,6 +74,7 @@ class CF7_Advanced_Honeypot
         }
         add_action('cf7_honeypot_cleanup', array($this, 'cleanup_old_logs'));
         add_action('admin_init', array($this, 'handle_cleanup_request'));
+        add_action('init', array($this, 'register_privacy_hooks'));
     }
 
     public static function activate_plugin()
@@ -887,7 +888,7 @@ class CF7_Advanced_Honeypot
             return 'XX';
         }
 
-        $response = wp_remote_get('http://ip-api.com/json/' . $ip . '?fields=countryCode');
+        $response = wp_remote_get('https://ip-api.com/json/' . $ip . '?fields=countryCode');
 
         if (is_wp_error($response)) {
             return 'XX';
@@ -1332,6 +1333,126 @@ class CF7_Advanced_Honeypot
             plugins_url('assets/css/admin.min.css', __FILE__),
             array(),
             '1.0.0'
+        );
+    }
+
+    public function register_privacy_hooks()
+    {
+        add_filter('wp_privacy_personal_data_exporters', array($this, 'add_privacy_exporter'));
+        add_filter('wp_privacy_personal_data_erasers', array($this, 'add_privacy_eraser'));
+    }
+
+    public function add_privacy_exporter($exporters)
+    {
+        $exporters['cf7-honeypot'] = array(
+            'exporter_friendly_name' => __('CF7 Honeypot Data', 'cf7-honeypot'),
+            'callback'              => array($this, 'privacy_export_data'),
+        );
+        return $exporters;
+    }
+
+    public function privacy_export_data($email_address, $page = 1)
+    {
+        global $wpdb;
+        $export_items = array();
+        $number = 500;
+        $page   = (int) $page;
+        $offset = ($page - 1) * $number;
+
+        $table  = $wpdb->prefix . $this->stats_table;
+        $results = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT id, ip_address, user_agent, referrer_url, triggered_field, country_code, created_at FROM $table WHERE email = %s ORDER BY id ASC LIMIT %d OFFSET %d",
+                $email_address,
+                $number,
+                $offset
+            )
+        );
+
+        foreach ($results as $row) {
+            $data = array(
+                array(
+                    'name'  => __('IP Address', 'cf7-honeypot'),
+                    'value' => $row->ip_address,
+                ),
+                array(
+                    'name'  => __('User Agent', 'cf7-honeypot'),
+                    'value' => $row->user_agent,
+                ),
+                array(
+                    'name'  => __('Referrer URL', 'cf7-honeypot'),
+                    'value' => $row->referrer_url,
+                ),
+                array(
+                    'name'  => __('Triggered Field', 'cf7-honeypot'),
+                    'value' => $row->triggered_field,
+                ),
+                array(
+                    'name'  => __('Country', 'cf7-honeypot'),
+                    'value' => $row->country_code,
+                ),
+                array(
+                    'name'  => __('Date', 'cf7-honeypot'),
+                    'value' => $row->created_at,
+                ),
+            );
+
+            $export_items[] = array(
+                'group_id'    => 'cf7-honeypot',
+                'group_label' => __('CF7 Honeypot Logs', 'cf7-honeypot'),
+                'item_id'     => "log-{$row->id}",
+                'data'        => $data,
+            );
+        }
+
+        $done = count($results) < $number;
+
+        return array(
+            'data' => $export_items,
+            'done' => $done,
+        );
+    }
+
+    public function add_privacy_eraser($erasers)
+    {
+        $erasers['cf7-honeypot'] = array(
+            'eraser_friendly_name' => __('CF7 Honeypot Data', 'cf7-honeypot'),
+            'callback'             => array($this, 'privacy_erase_data'),
+        );
+        return $erasers;
+    }
+
+    public function privacy_erase_data($email_address, $page = 1)
+    {
+        global $wpdb;
+        $number = 500;
+        $page   = (int) $page;
+        $offset = ($page - 1) * $number;
+
+        $table = $wpdb->prefix . $this->stats_table;
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT id FROM $table WHERE email = %s ORDER BY id ASC LIMIT %d OFFSET %d",
+                $email_address,
+                $number,
+                $offset
+            )
+        );
+
+        $items_removed = 0;
+        foreach ($ids as $id) {
+            if ($wpdb->delete($table, array('id' => $id), array('%d'))) {
+                $items_removed++;
+            }
+        }
+
+        $done = count($ids) < $number;
+
+        return array(
+            'items_removed'  => $items_removed,
+            'items_retained' => 0,
+            'messages'       => array(),
+            'done'           => $done,
         );
     }
 }
