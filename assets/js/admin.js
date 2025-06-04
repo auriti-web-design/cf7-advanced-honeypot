@@ -31,6 +31,7 @@
             this.initDynamicToggles();
             this.initCountrySelect();
             this.initBulkActions();
+            this.initBlockedIps();
         },
 
         /**
@@ -343,6 +344,27 @@
             $('#cb-select-all-1').prop({
                 'checked': checkedCheckboxes === totalCheckboxes,
                 'indeterminate': checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
+            });
+        },
+
+        /**
+         * Initialize actions for blocked IPs management page
+         */
+        initBlockedIps() {
+            $('.unblock-ip').on('click', function () {
+                const ip = $(this).data('ip');
+                if (!confirm('Unblock ' + ip + '?')) return;
+                $.post(ajaxurl, {
+                    action: 'cf7_honeypot_unblock_ip',
+                    ip: ip,
+                    nonce: cf7HoneypotAdmin.unblockNonce
+                }, function (response) {
+                    if (response.success) {
+                        $("tr[data-ip='" + ip + "']").fadeOut(300, function () { $(this).remove(); });
+                    } else {
+                        alert('Error');
+                    }
+                });
             });
         },
 

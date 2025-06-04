@@ -391,6 +391,32 @@ class CF7_Advanced_Honeypot
      */
     public function validate_honeypot($result, $tags)
     {
+        // Get form ID and settings
+        $form_id  = isset($_POST['_wpcf7']) ? (int) $_POST['_wpcf7'] : 0;
+        $settings = CF7_Honeypot_Settings::get_instance()->get_form_settings($form_id);
+
+        // Block immediately if IP is blacklisted
+        if (!empty($settings['enabled']) && $this->is_ip_blocked($this->get_client_ip())) {
+            $error_message = $settings['custom_error_message'] ?? __('Unable to send message.', 'cf7-honeypot');
+            $result->invalidate('spam', $error_message);
+
+            $submission = WPCF7_Submission::get_instance();
+            if ($submission) {
+                $submission->set_status('spam');
+                if (method_exists($submission, 'set_response')) {
+                    $submission->set_response($error_message);
+                }
+            }
+
+            add_filter('wpcf7_skip_mail', '__return_true');
+            add_filter('cfdb7_before_save_data', '__return_false');
+            remove_all_actions('wpcf7_before_send_mail');
+            remove_all_actions('wpcf7_mail_sent');
+            remove_all_actions('wpcf7_mail_failed');
+
+            return $result;
+        }
+
         // Get cached field IDs
         $field_ids = $this->get_cached_field_ids();
 
@@ -560,6 +586,35 @@ class CF7_Advanced_Honeypot
         $blocked_ips = get_option('cf7_honeypot_blocked_ips', array());
         $blocked_ips[$ip] = time();
         update_option('cf7_honeypot_blocked_ips', $blocked_ips);
+    }
+
+    /**
+     * Checks if an IP is currently blocked and handles expiration.
+     *
+     * @param string $ip IP address to check
+     * @return bool True if blocked, false otherwise
+     */
+    private function is_ip_blocked($ip)
+    {
+        $blocked_ips = get_option('cf7_honeypot_blocked_ips', array());
+
+        if (!isset($blocked_ips[$ip])) {
+            return false;
+        }
+
+        $settings = get_option('cf7_honeypot_settings');
+        $duration = isset($settings['block_duration']) ? (int) $settings['block_duration'] : 24;
+        $expires  = $blocked_ips[$ip] + ($duration * HOUR_IN_SECONDS);
+
+        if (time() < $expires) {
+            return true;
+        }
+
+        // Remove expired IP
+        unset($blocked_ips[$ip]);
+        update_option('cf7_honeypot_blocked_ips', $blocked_ips);
+
+        return false;
     }
 
     /**
@@ -967,6 +1022,7 @@ class CF7_Advanced_Honeypot
     {
         add_action('wp_ajax_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
         add_action('wp_ajax_nopriv_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
+        add_action('wp_ajax_cf7_honeypot_unblock_ip', array($this, 'ajax_unblock_ip'));
     }
 
     public function ajax_delete_records()
@@ -1009,6 +1065,34 @@ class CF7_Advanced_Honeypot
                 number_format_i18n($deleted)
             )
         ));
+    }
+
+    /**
+     * AJAX handler to manually unblock an IP address.
+     */
+    public function ajax_unblock_ip()
+    {
+        check_ajax_referer('cf7_honeypot_unblock_ip', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+        }
+
+        $ip = isset($_POST['ip']) ? sanitize_text_field($_POST['ip']) : '';
+
+        if (empty($ip)) {
+            wp_send_json_error('Invalid IP');
+        }
+
+        $blocked_ips = get_option('cf7_honeypot_blocked_ips', array());
+
+        if (isset($blocked_ips[$ip])) {
+            unset($blocked_ips[$ip]);
+            update_option('cf7_honeypot_blocked_ips', $blocked_ips);
+            wp_send_json_success(array('message' => __('IP removed', 'cf7-honeypot')));
+        }
+
+        wp_send_json_error('IP not found');
     }
 
     /**
