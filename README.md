@@ -361,6 +361,12 @@ npm run build
 
 Il processo utilizza `uglify-js` e `cssnano` per produrre `assets/js/admin.min.js` e `assets/css/admin.min.css`.
 
+### Test
+Per eseguire la suite PHPUnit:
+```bash
+phpunit
+```
+
 ## License
 
 This project is licensed under the GPL v2 or later.
