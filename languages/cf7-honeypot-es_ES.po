@@ -1,0 +1,23 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: CF7 Advanced Honeypot\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Blocked IPs"
+msgstr "IPs bloqueadas"
+
+msgid "Save Changes"
+msgstr "Guardar cambios"
+
+msgid "What is the capital of Italy?"
+msgstr "¿Cuál es la capital de Italia?"
+
+msgid "CF7 Honeypot Logs"
+msgstr "Registros de CF7 Honeypot"
+
+msgid "Logs from the last 24 hours have been cleared."
+msgstr "Los registros de las últimas 24 horas se han eliminado."
