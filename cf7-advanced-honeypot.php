@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Advanced CF7 Honeypot System
  * Description: Advanced anti-spam protection system for Contact Form 7 with enhanced logging and CFDB7 integration
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author: Juan Camilo Auriti
  * Author URI: https://auritidesign.it
  * Text Domain: cf7-honeypot

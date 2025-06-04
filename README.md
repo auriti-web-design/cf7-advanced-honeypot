@@ -275,11 +275,15 @@ CREATE TABLE `{prefix}cf7_honeypot_stats` (
 
 - Custom text domain
 
+- Includes ready-to-use `.po` files for English, Italian and Spanish
+
 ### Available Translations
 
 - English (default)
 
 - Italian
+
+- Spanish
 
 - [Community translations welcome]
 
@@ -371,6 +375,10 @@ phpunit
 
 This project is licensed under the GPL v2 or later.
 
+## Pre-Sale Readiness
+
+This version includes translation files and updated documentation, making it suitable for pre-sale evaluation.
+
 ## Support
 
 - GitHub Issues: [Issues](https://github.com/auriti-web-design/cf7-advanced-honeypot/issues)
@@ -378,8 +386,8 @@ This project is licensed under the GPL v2 or later.
 
 ---
 
-Last Updated: 29/11/2024
+Last Updated: 04/06/2025
 
-Version: 1.3.1
+Version: 1.3.2
 
 Author: Juan Camilo Auriti
