@@ -1,6 +1,6 @@
 # 🛡️ CF7 Advanced Honeypot System
 
-[![WordPress Plugin Version](https://img.shields.io/badge/version-1.3.2-blue.svg)](https://github.com/auriti-web-design/cf7-advanced-honeypot/releases) [![WordPress Version](https://img.shields.io/badge/wordpress-%3E%3D5.0-blue.svg)](https://wordpress.org/) [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-blue.svg)](https://php.net/) [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
+[![WordPress Plugin Version](https://img.shields.io/badge/version-1.3.3-blue.svg)](https://github.com/auriti-web-design/cf7-advanced-honeypot/releases) [![WordPress Version](https://img.shields.io/badge/wordpress-%3E%3D5.0-blue.svg)](https://wordpress.org/) [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.4-blue.svg)](https://php.net/) [![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]() [![Contact Form 7](https://img.shields.io/badge/Contact%20Form%207-compatible-orange.svg)]() [![Multisite](https://img.shields.io/badge/multisite-compatible-brightgreen.svg)]() [![CFDB7](https://img.shields.io/badge/CFDB7-integrated-purple.svg)]() [![Translations](https://img.shields.io/badge/i18n-ready-blue.svg)]()
 
@@ -395,8 +395,11 @@ cf7-advanced-honeypot/
 ├── languages/
 │   ├── cf7-honeypot.pot               # Translation template
 │   ├── cf7-honeypot-en_US.po          # English translations
+│   ├── cf7-honeypot-en_US.mo          # English binary
 │   ├── cf7-honeypot-it_IT.po          # Italian translations
-│   └── cf7-honeypot-es_ES.po          # Spanish translations
+│   ├── cf7-honeypot-it_IT.mo          # Italian binary
+│   ├── cf7-honeypot-es_ES.po          # Spanish translations
+│   └── cf7-honeypot-es_ES.mo          # Spanish binary
 └── build/
     ├── package.json                    # Build dependencies
     └── build.js                        # Asset compilation script
@@ -848,6 +851,8 @@ grep "legitimate user blocked" wp-content/debug.log
    ```bash
    msgfmt languages/cf7-honeypot-fr_FR.po -o languages/cf7-honeypot-fr_FR.mo
    ```
+
+Existing translations (en_US, it_IT, es_ES) are pre-compiled and included with the plugin.
 
 #### **Translation Keys Reference**
 

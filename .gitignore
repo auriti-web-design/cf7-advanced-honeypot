@@ -1,3 +1,4 @@
 build/node_modules/
 build/package-lock.json
 .phpunit.result.cache
+languages/*.mo
