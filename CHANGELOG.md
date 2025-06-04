@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [1.3.3] - 2025-06-05
+### Fixed
+- Included compiled `.mo` files for bundled languages
+### Changed
+- Updated README to reflect available translations
+
 ## [1.3.2] - 2025-06-04
 ### Added
 - Native translation files for English, Italian and Spanish
@@ -64,7 +70,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Risk level assessment system
 - Responsive admin interface
 
-[Unreleased]: https://github.com/auriti-web-design/cf7-advanced-honeypot/compare/v1.3.2...HEAD
+[Unreleased]: https://github.com/auriti-web-design/cf7-advanced-honeypot/compare/v1.3.3...HEAD
+[1.3.3]: https://github.com/auriti-web-design/cf7-advanced-honeypot/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/auriti-web-design/cf7-advanced-honeypot/compare/v1.3.1...v1.3.2
 [1.3.1]: https://github.com/auriti-web-design/cf7-advanced-honeypot/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/auriti-web-design/cf7-advanced-honeypot/compare/v1.2.0...v1.3.0
