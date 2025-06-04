@@ -293,37 +293,6 @@
             });
         },
 
-        deleteSelectedRecords(ids) {
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'cf7_honeypot_delete_records',
-                    ids: ids,
-                    nonce: cf7HoneypotAdmin.deleteNonce
-                },
-                beforeSend: () => {
-                    $('#doaction').prop('disabled', true);
-                },
-                success: (response) => {
-                    if (response.success) {
-                        ids.forEach(id => {
-                            $(`tr[data-record-id="${id}"]`).remove();
-                        });
-                        location.reload(); // Ricarica la pagina per aggiornare i conteggi
-                    } else {
-                        alert('Error deleting records');
-                    }
-                },
-                error: () => {
-                    alert('Error deleting records');
-                },
-                complete: () => {
-                    $('#doaction').prop('disabled', false);
-                }
-            });
-
-        },
 
         /**
          * Update bulk action button state
