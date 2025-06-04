@@ -1,0 +1,12 @@
+{
+  "name": "cf7-advanced-honeypot",
+  "require-dev": {
+    "phpunit/phpunit": "^9.6",
+    "wp-phpunit/wp-phpunit": "^6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "CF7\\": "includes/"
+    }
+  }
+}
