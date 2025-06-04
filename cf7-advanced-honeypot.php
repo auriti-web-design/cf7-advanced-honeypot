@@ -888,6 +888,12 @@ class CF7_Advanced_Honeypot
             return 'XX';
         }
 
+        $cache_key = 'cf7_honeypot_geoip_' . md5($ip);
+        $cached     = get_transient($cache_key);
+        if ($cached !== false) {
+            return $cached;
+        }
+
         $response = wp_remote_get('https://ip-api.com/json/' . $ip . '?fields=countryCode');
 
         if (is_wp_error($response)) {
@@ -898,7 +904,9 @@ class CF7_Advanced_Honeypot
         $data = json_decode($body, true);
 
         if (isset($data['countryCode'])) {
-            return strtoupper(sanitize_text_field($data['countryCode']));
+            $country = strtoupper(sanitize_text_field($data['countryCode']));
+            set_transient($cache_key, $country, DAY_IN_SECONDS);
+            return $country;
         }
 
         return 'XX';
@@ -1024,6 +1032,7 @@ class CF7_Advanced_Honeypot
         add_action('wp_ajax_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
         add_action('wp_ajax_nopriv_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
         add_action('wp_ajax_cf7_honeypot_unblock_ip', array($this, 'ajax_unblock_ip'));
+        add_action('wp_ajax_cf7_honeypot_load_stats', array($this, 'ajax_load_stats'));
     }
 
     public function ajax_delete_records()
@@ -1097,6 +1106,67 @@ class CF7_Advanced_Honeypot
     }
 
     /**
+     * AJAX handler to load additional statistics rows for lazy loading.
+     */
+    public function ajax_load_stats()
+    {
+        check_ajax_referer('cf7_honeypot_load_stats', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Unauthorized');
+        }
+
+        $page     = isset($_POST['page']) ? max(1, intval($_POST['page'])) : 1;
+        $per_page = 20;
+        $offset   = ($page - 1) * $per_page;
+
+        global $wpdb;
+        $table = $wpdb->prefix . $this->stats_table;
+
+        $attempts = $wpdb->get_results($wpdb->prepare(
+            "SELECT s.*, p.post_title as form_title,
+                (SELECT COUNT(*) FROM {$table} WHERE ip_address = s.ip_address AND honeypot_triggered = 1) as attempts_count
+             FROM {$table} s
+             LEFT JOIN {$wpdb->posts} p ON s.form_id = p.ID
+             WHERE s.honeypot_triggered = 1
+             ORDER BY s.created_at DESC
+             LIMIT %d OFFSET %d",
+            $per_page,
+            $offset
+        ));
+
+        if (!function_exists('get_risk_level')) {
+            function get_risk_level($attempts_count)
+            {
+                if ($attempts_count > 5) return 'high';
+                if ($attempts_count > 2) return 'medium';
+                return 'low';
+            }
+        }
+        if (!function_exists('get_risk_label')) {
+            function get_risk_label($risk_level)
+            {
+                switch ($risk_level) {
+                    case 'high':
+                        return __('High Risk', 'cf7-honeypot');
+                    case 'medium':
+                        return __('Medium Risk', 'cf7-honeypot');
+                    default:
+                        return __('Low Risk', 'cf7-honeypot');
+                }
+            }
+        }
+
+        ob_start();
+        foreach ($attempts as $attempt) {
+            include plugin_dir_path(__FILE__) . 'templates/partials/stats-row.php';
+        }
+        $html = ob_get_clean();
+
+        wp_send_json_success(array('html' => $html));
+    }
+
+    /**
      * Verifica la presenza di spam prima del salvataggio CFDB7
      *
      * @param WPCF7_ContactForm $contact_form
@@ -1158,6 +1228,16 @@ class CF7_Advanced_Honeypot
             'manage_options',
             'cf7-honeypot-settings',
             array($this, 'render_settings_page')
+        );
+
+        // Sottomenu Blocked IPs
+        add_submenu_page(
+            'cf7-honeypot-stats',
+            __('Blocked IPs', 'cf7-honeypot'),
+            __('Blocked IPs', 'cf7-honeypot'),
+            'manage_options',
+            'cf7-honeypot-blocked-ips',
+            array(CF7_Honeypot_Settings::get_instance(), 'render_blocked_ips_page')
         );
     }
 
@@ -1326,8 +1406,18 @@ class CF7_Advanced_Honeypot
         wp_clear_scheduled_hook('cf7_honeypot_cleanup');
     }
 
-    public function enqueue_admin_styles()
+    public function enqueue_admin_styles($hook)
     {
+        $allowed_pages = array(
+            'toplevel_page_cf7-honeypot-stats',
+            'cf7-honeypot_page_cf7-honeypot-settings',
+            'cf7-honeypot_page_cf7-honeypot-blocked-ips',
+        );
+
+        if (!in_array($hook, $allowed_pages, true)) {
+            return;
+        }
+
         wp_enqueue_style(
             'cf7-honeypot-admin',
             plugins_url('assets/css/admin.min.css', __FILE__),
@@ -1463,11 +1553,11 @@ function cf7_advanced_honeypot_init()
     return CF7_Advanced_Honeypot::get_instance();
 }
 
-function cf7_advanced_honeypot_admin_styles()
+function cf7_advanced_honeypot_admin_styles($hook)
 {
     $instance = CF7_Advanced_Honeypot::get_instance();
     if (method_exists($instance, 'enqueue_admin_styles')) {
-        $instance->enqueue_admin_styles();
+        $instance->enqueue_admin_styles($hook);
     }
 }
 

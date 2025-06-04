@@ -32,6 +32,7 @@
             this.initCountrySelect();
             this.initBulkActions();
             this.initBlockedIps();
+            this.initLazyLoading();
         },
 
         /**
@@ -332,6 +333,37 @@
                         $("tr[data-ip='" + ip + "']").fadeOut(300, function () { $(this).remove(); });
                     } else {
                         alert('Error');
+                    }
+                });
+            });
+        },
+
+        /**
+         * Initialize lazy loading for the statistics table
+         */
+        initLazyLoading() {
+            const $btn = $('#cf7-honeypot-load-more');
+            if (!$btn.length) return;
+
+            let current = parseInt($btn.data('current-page'), 10);
+            const total = parseInt($btn.data('total-pages'), 10);
+
+            $btn.on('click', function (e) {
+                e.preventDefault();
+                if (current >= total) return;
+
+                $.post(ajaxurl, {
+                    action: 'cf7_honeypot_load_stats',
+                    page: current + 1,
+                    nonce: cf7HoneypotAdmin.loadStatsNonce
+                }, function (response) {
+                    if (response.success) {
+                        $('#stats-table-body').append(response.data.html);
+                        current++;
+                        $btn.data('current-page', current);
+                        if (current >= total) {
+                            $btn.hide();
+                        }
                     }
                 });
             });
