@@ -402,7 +402,7 @@ class CF7_Honeypot_Settings
         // Plugin CSS
         wp_enqueue_style(
             'cf7-honeypot-admin-settings',
-            plugins_url('assets/css/admin-settings.css', dirname(__FILE__)),
+            plugins_url('assets/css/admin.min.css', dirname(__FILE__)),
             array('select2'),
             '1.1.0'
         );
@@ -461,7 +461,7 @@ class CF7_Honeypot_Settings
         // Plugin JavaScript
         wp_enqueue_script(
             'cf7-honeypot-admin',
-            plugins_url('assets/js/admin.js', dirname(__FILE__)),
+            plugins_url('assets/js/admin.min.js', dirname(__FILE__)),
             array('jquery', 'select2'),
             '1.1.0',
             true

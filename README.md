@@ -349,6 +349,18 @@ We welcome contributions! Please follow these steps:
 
 5\. Create a Pull Request
 
+## Sviluppo
+
+Per generare i file minificati di JavaScript e CSS eseguire i seguenti comandi:
+
+```bash
+cd build
+npm install
+npm run build
+```
+
+Il processo utilizza `uglify-js` e `cssnano` per produrre `assets/js/admin.min.js` e `assets/css/admin.min.css`.
+
 ## License
 
 This project is licensed under the GPL v2 or later.
