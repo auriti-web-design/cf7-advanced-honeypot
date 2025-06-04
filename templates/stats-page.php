@@ -154,7 +154,7 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
                             <tr data-record-id="<?php echo esc_attr($attempt->id); ?>">
                                 <td class="column-cb check-column">
                                     <input type="checkbox" name="bulk-delete[]" value="<?php echo esc_attr($attempt->id); ?>">
-                                    </th>
+                                    </td>
                                 <td><?php echo esc_html(wp_date('d/m/Y H:i:s', strtotime($attempt->created_at))); ?></td>
                                 <td><?php echo esc_html($attempt->form_title ?: 'Form #' . $attempt->form_id); ?></td>
                                 <td><?php echo esc_html($attempt->ip_address); ?></td>
