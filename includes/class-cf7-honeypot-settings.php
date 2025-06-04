@@ -479,13 +479,7 @@ class CF7_Honeypot_Settings
                 'remove' => __('Remove', 'cf7-honeypot'),
                 'selectCountries' => __('Select countries to block...', 'cf7-honeypot'),
                 'searching' => __('Searching...', 'cf7-honeypot'),
-                'noResults' => __('No countries found', 'cf7-honeypot'),
-                'invalidEmail' => __('Invalid email format', 'cf7-honeypot'),
-                'requiredField' => __('This field is required', 'cf7-honeypot'),
-                'selectOneRecord' => __('Please select at least one record to delete', 'cf7-honeypot'),
-                'deleteSelected' => __('Are you sure you want to delete the selected records?', 'cf7-honeypot'),
-                'unblockIp' => __('Unblock %s?', 'cf7-honeypot'),
-                'error' => __('Error', 'cf7-honeypot')
+                'noResults' => __('No countries found', 'cf7-honeypot')
             )
         ));
     }

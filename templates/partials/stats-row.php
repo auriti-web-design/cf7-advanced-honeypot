@@ -4,10 +4,10 @@
         <input type="checkbox" name="bulk-delete[]" value="<?php echo esc_attr($attempt->id); ?>">
     </td>
     <td><?php echo esc_html(wp_date('d/m/Y H:i:s', strtotime($attempt->created_at))); ?></td>
-    <td><?php echo esc_html($attempt->form_title ?: sprintf(__('Form #%d', 'cf7-honeypot'), $attempt->form_id)); ?></td>
+    <td><?php echo esc_html($attempt->form_title ?: 'Form #' . $attempt->form_id); ?></td>
     <td><?php echo esc_html($attempt->ip_address); ?></td>
-    <td><?php echo esc_html($attempt->email ?: __('N/A', 'cf7-honeypot')); ?></td>
-    <td><?php echo esc_html($attempt->triggered_field ?: __('Unknown', 'cf7-honeypot')); ?></td>
+    <td><?php echo esc_html($attempt->email ?: 'N/A'); ?></td>
+    <td><?php echo esc_html($attempt->triggered_field ?: 'Unknown'); ?></td>
     <td>
         <span class="status-badge risk-<?php echo esc_attr(get_risk_level($attempt->attempts_count)); ?>">
             <?php echo esc_html(get_risk_label(get_risk_level($attempt->attempts_count))); ?>
@@ -25,9 +25,9 @@
     <td colspan="8">
         <div class="details-content">
             <p><strong><?php esc_html_e('Browser:', 'cf7-honeypot'); ?></strong>
-                <?php echo esc_html($attempt->user_agent ?: __('Unknown', 'cf7-honeypot')); ?></p>
+                <?php echo esc_html($attempt->user_agent ?: 'Unknown'); ?></p>
             <p><strong><?php esc_html_e('Referrer:', 'cf7-honeypot'); ?></strong>
-                <?php echo esc_html($attempt->referrer_url ?: __('Direct Access', 'cf7-honeypot')); ?></p>
+                <?php echo esc_html($attempt->referrer_url ?: 'Direct Access'); ?></p>
             <p><strong><?php esc_html_e('Total Attempts:', 'cf7-honeypot'); ?></strong>
                 <?php echo esc_html($attempt->attempts_count); ?></p>
         </div>
