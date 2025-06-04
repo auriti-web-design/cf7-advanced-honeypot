@@ -31,6 +31,7 @@
             this.initDynamicToggles();
             this.initCountrySelect();
             this.initBulkActions();
+            this.initCSVExport();
         },
 
         /**
@@ -343,6 +344,12 @@
             $('#cb-select-all-1').prop({
                 'checked': checkedCheckboxes === totalCheckboxes,
                 'indeterminate': checkedCheckboxes > 0 && checkedCheckboxes < totalCheckboxes
+            });
+        },
+
+        initCSVExport() {
+            $('#export-csv').on('click', () => {
+                window.location = ajaxurl + '?action=cf7_honeypot_export_csv&nonce=' + cf7HoneypotAdmin.exportNonce;
             });
         },
 

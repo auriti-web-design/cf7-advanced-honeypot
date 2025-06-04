@@ -122,6 +122,9 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
                         <?php esc_html_e('Clear All Logs', 'cf7-honeypot'); ?>
                     </button>
                 </form>
+                <button type="button" id="export-csv" class="cleanup-button">
+                    <?php esc_html_e('Export CSV', 'cf7-honeypot'); ?>
+                </button>
             </div>
         </div>
 
@@ -253,7 +256,8 @@ $recent_attempts = $wpdb->get_results($wpdb->prepare("
         </div>
         <?php
         wp_localize_script('cf7-honeypot-admin', 'cf7HoneypotAdmin', array(
-            'deleteNonce' => wp_create_nonce('cf7_honeypot_delete_records')
+            'deleteNonce' => wp_create_nonce('cf7_honeypot_delete_records'),
+            'exportNonce' => wp_create_nonce('cf7_honeypot_export_csv')
         ));
         ?>
     </div>

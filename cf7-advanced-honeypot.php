@@ -898,6 +898,7 @@ class CF7_Advanced_Honeypot
     {
         add_action('wp_ajax_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
         add_action('wp_ajax_nopriv_cf7_honeypot_delete_records', array($this, 'ajax_delete_records'));
+        add_action('wp_ajax_cf7_honeypot_export_csv', array($this, 'ajax_export_csv'));
     }
 
     public function ajax_delete_records()
@@ -940,6 +941,35 @@ class CF7_Advanced_Honeypot
                 number_format_i18n($deleted)
             )
         ));
+    }
+
+    public function ajax_export_csv()
+    {
+        check_ajax_referer('cf7_honeypot_export_csv', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_die(__('Unauthorized', 'cf7-honeypot'));
+        }
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . $this->stats_table;
+
+        $results = $wpdb->get_results("SELECT * FROM {$table_name} ORDER BY created_at DESC", ARRAY_A);
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="cf7_honeypot_stats.csv"');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
+        $output = fopen('php://output', 'w');
+        if (!empty($results)) {
+            fputcsv($output, array_keys($results[0]));
+            foreach ($results as $row) {
+                fputcsv($output, $row);
+            }
+        }
+        fclose($output);
+        exit;
     }
 
     /**
