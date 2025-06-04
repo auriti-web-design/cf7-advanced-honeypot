@@ -21,8 +21,14 @@ class CF7_Honeypot_Settings
 
     public function add_settings_page()
     {
-        // Non è più necessario aggiungere il submenu qui
-        // poiché viene gestito nella classe principale
+        add_submenu_page(
+            'cf7-honeypot-stats',
+            __('Blocked IPs', 'cf7-honeypot'),
+            __('Blocked IPs', 'cf7-honeypot'),
+            'manage_options',
+            'cf7-honeypot-blocked-ips',
+            array($this, 'render_blocked_ips_page')
+        );
     }
 
     public function register_settings()
@@ -248,6 +254,15 @@ class CF7_Honeypot_Settings
         <?php
     }
 
+    public function render_blocked_ips_page()
+    {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+
+        include plugin_dir_path(dirname(__FILE__)) . 'templates/blocked-ips.php';
+    }
+
     // Render Methods for Different Field Types
     public function render_checkbox_field($args)
     {
@@ -379,7 +394,7 @@ class CF7_Honeypot_Settings
 
     public function enqueue_admin_scripts($hook)
     {
-        if ('cf7-honeypot_page_cf7-honeypot-settings' !== $hook) {
+        if (!in_array($hook, array('cf7-honeypot_page_cf7-honeypot-settings', 'cf7-honeypot_page_cf7-honeypot-blocked-ips'))) {
             return;
         }
 
@@ -485,6 +500,7 @@ class CF7_Honeypot_Settings
     {
         return in_array($hook, array(
             'cf7-honeypot_page_cf7-honeypot-settings',
+            'cf7-honeypot_page_cf7-honeypot-blocked-ips',
             'toplevel_page_cf7-honeypot-stats'
         ));
     }
