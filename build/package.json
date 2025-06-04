@@ -1,0 +1,13 @@
+{
+  "name": "cf7-advanced-honeypot-build",
+  "version": "1.0.0",
+  "private": true,
+  "devDependencies": {
+    "uglify-js": "^3.17.4",
+    "postcss-cli": "^10.1.0",
+    "cssnano": "^5.1.14"
+  },
+  "scripts": {
+    "build": "node build.js"
+  }
+}

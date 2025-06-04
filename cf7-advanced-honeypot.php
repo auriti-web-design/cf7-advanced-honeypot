@@ -1329,7 +1329,7 @@ class CF7_Advanced_Honeypot
     {
         wp_enqueue_style(
             'cf7-honeypot-admin',
-            plugins_url('assets/css/admin-style.css', __FILE__),
+            plugins_url('assets/css/admin.min.css', __FILE__),
             array(),
             '1.0.0'
         );
