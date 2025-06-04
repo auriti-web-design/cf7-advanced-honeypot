@@ -1,27 +1,580 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: CF7 Advanced Honeypot\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-04 14:33+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: cf7-advanced-honeypot.php
-msgid "Blocked IPs"
-msgstr ""
-
-#: templates/settings-page.php
-msgid "Save Changes"
-msgstr ""
-
-#: cf7-advanced-honeypot.php
+#: cf7-advanced-honeypot.php:158
 msgid "What is the capital of Italy?"
 msgstr ""
 
-#: cf7-advanced-honeypot.php
+#: cf7-advanced-honeypot.php:159 cf7-advanced-honeypot.php:355
+msgid "What is 2 + 2?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:160
+msgid "What color is the sky on a clear day?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:161
+msgid "What is Earth's natural satellite called?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:162
+msgid "What is 10 - 5?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:163
+msgid "In which continent is France located?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:164
+msgid "What color is the sun?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:165
+msgid "What is 3 x 3?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:166
+msgid "What is the capital of France?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:167
+msgid "What season comes after summer?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:168
+msgid "How many days are in a week?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:169
+msgid "What sound does a cat make?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:170
+msgid "What color is grass?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:171
+msgid "What is 15 divided by 3?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:172
+msgid "In which country is the Eiffel Tower?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:173
+msgid "What is the first month of the year?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:174
+msgid "What sound does a dog make?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:175
+msgid "How many legs does a cat have?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:176
+msgid "What color is a ripe banana?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:177
+msgid "What is 20 + 5?"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:328 cf7-advanced-honeypot.php:1151
+#: cf7-advanced-honeypot.php:1356
+msgid "High Risk"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:330 cf7-advanced-honeypot.php:1153
+#: cf7-advanced-honeypot.php:1358
+msgid "Medium Risk"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:332 cf7-advanced-honeypot.php:1155
+#: cf7-advanced-honeypot.php:1360
+msgid "Low Risk"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:401 cf7-advanced-honeypot.php:435
+#: cf7-advanced-honeypot.php:492
+msgid "Unable to send message."
+msgstr ""
+
+#: cf7-advanced-honeypot.php:655
+msgid "Logs from the last 24 hours have been cleared."
+msgstr ""
+
+#: cf7-advanced-honeypot.php:658
+msgid "Logs from the last 7 days have been cleared."
+msgstr ""
+
+#: cf7-advanced-honeypot.php:661
+msgid "Logs from the last 30 days have been cleared."
+msgstr ""
+
+#: cf7-advanced-honeypot.php:664
+msgid "All logs have been cleared."
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1070
+#, php-format
+msgid "%s record deleted successfully."
+msgid_plural "%s records deleted successfully."
+msgstr[0] ""
+msgstr[1] ""
+
+#: cf7-advanced-honeypot.php:1102
+msgid "IP removed"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1204 cf7-advanced-honeypot.php:1205
+msgid "CF7 Honeypot"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1216 cf7-advanced-honeypot.php:1217
+msgid "Statistics"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1226 cf7-advanced-honeypot.php:1227
+msgid "Settings"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1236 cf7-advanced-honeypot.php:1237
+msgid "Blocked IPs"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1438 cf7-advanced-honeypot.php:1509
+msgid "CF7 Honeypot Data"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1465 templates/blocked-ips.php:16
+#: templates/stats-page.php:144
+msgid "IP Address"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1469
+msgid "User Agent"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1473
+msgid "Referrer URL"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1477 templates/stats-page.php:146
+msgid "Triggered Field"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1481
+msgid "Country"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1485
+msgid "Date"
+msgstr ""
+
+#: cf7-advanced-honeypot.php:1492
 msgid "CF7 Honeypot Logs"
 msgstr ""
 
-#: cf7-advanced-honeypot.php
-msgid "Logs from the last 24 hours have been cleared."
+#: cf7-advanced-honeypot.php:1583
+msgid "Twice Weekly"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:28 templates/settings-page.php:37
+msgid "Protection Settings"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:29 templates/settings-page.php:95
+msgid "Notification Settings"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:30 templates/settings-page.php:130
+msgid "Customization Settings"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:53 templates/settings-page.php:46
+msgid "Auto-block IPs"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:59 templates/settings-page.php:47
+msgid "Automatically block IPs after repeated spam attempts"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:66 templates/settings-page.php:55
+msgid "Block Threshold"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:72 templates/settings-page.php:56
+msgid "Number of attempts before blocking an IP"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:81 templates/settings-page.php:64
+msgid "Block Duration (hours)"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:87 templates/settings-page.php:65
+msgid "How long to block IPs (in hours)"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:96 templates/settings-page.php:70
+msgid "Country Blocking"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:102
+msgid "Block submissions from specific countries"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:127 templates/settings-page.php:103
+msgid "Admin Notifications"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:133 templates/settings-page.php:104
+msgid "Send email notifications for blocked attempts"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:140 templates/settings-page.php:111
+msgid "Notification Threshold"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:146 templates/settings-page.php:112
+msgid "Minimum attempts before sending notification"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:155 templates/settings-page.php:120
+msgid "Additional Recipients"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:161 templates/settings-page.php:121
+msgid "Additional email addresses to notify (one per line)"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:171
+msgid "Custom Questions"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:177
+msgid "Add custom honeypot questions"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:184 templates/settings-page.php:162
+msgid "Custom Error Message"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:190
+msgid "Custom message shown when spam is detected"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:197
+msgid "Form-specific Settings"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:203
+msgid "Configure settings for specific forms"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:222 templates/settings-page.php:19
+msgid "Protection"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:226 templates/settings-page.php:23
+msgid "Notifications"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:230 templates/settings-page.php:27
+msgid "Customization"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:292
+#: includes/class-cf7-honeypot-settings.php:477 templates/settings-page.php:141
+msgid "Question"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:296
+#: includes/class-cf7-honeypot-settings.php:478 templates/settings-page.php:145
+msgid "Answer"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:297
+#: includes/class-cf7-honeypot-settings.php:479 templates/blocked-ips.php:27
+msgid "Remove"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:301 templates/settings-page.php:154
+msgid "Add Question"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:320
+msgid "Enable Protection"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:324
+msgid "Low"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:325
+msgid "Medium"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:327
+msgid "High"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:476
+msgid "Are you sure you want to delete this question?"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:480
+msgid "Select countries to block..."
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:481
+msgid "Searching..."
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:482
+msgid "No countries found"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:483
+msgid "Invalid email format"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:484
+msgid "This field is required"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:485
+msgid "Please select at least one record to delete"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:486
+msgid "Are you sure you want to delete the selected records?"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:487
+#, php-format
+msgid "Unblock %s?"
+msgstr ""
+
+#: includes/class-cf7-honeypot-settings.php:488
+msgid "Error"
+msgstr ""
+
+#: templates/blocked-ips.php:9
+msgid "Blocked IP Addresses"
+msgstr ""
+
+#: templates/blocked-ips.php:11
+msgid "No blocked IPs."
+msgstr ""
+
+#: templates/blocked-ips.php:17
+msgid "Unblock Date"
+msgstr ""
+
+#: templates/blocked-ips.php:18 templates/stats-page.php:148
+msgid "Actions"
+msgstr ""
+
+#: templates/partials/stats-row.php:7
+#, php-format
+msgid "Form #%d"
+msgstr ""
+
+#: templates/partials/stats-row.php:9
+msgid "N/A"
+msgstr ""
+
+#: templates/partials/stats-row.php:10 templates/partials/stats-row.php:28
+msgid "Unknown"
+msgstr ""
+
+#: templates/partials/stats-row.php:20
+msgid "Show Details"
+msgstr ""
+
+#: templates/partials/stats-row.php:27
+msgid "Browser:"
+msgstr ""
+
+#: templates/partials/stats-row.php:29
+msgid "Referrer:"
+msgstr ""
+
+#: templates/partials/stats-row.php:30
+msgid "Direct Access"
+msgstr ""
+
+#: templates/partials/stats-row.php:31
+msgid "Total Attempts:"
+msgstr ""
+
+#: templates/settings-page.php:10
+msgid "CF7 Advanced Honeypot Settings"
+msgstr ""
+
+#: templates/settings-page.php:11
+msgid ""
+"Configure advanced spam protection settings for your Contact Form 7 forms."
+msgstr ""
+
+#: templates/settings-page.php:86
+msgid "Select countries to block form submissions from"
+msgstr ""
+
+#: templates/settings-page.php:117
+msgid "Enter email addresses, one per line"
+msgstr ""
+
+#: templates/settings-page.php:161
+msgid "Enter custom error message"
+msgstr ""
+
+#: templates/settings-page.php:163
+msgid "Message shown when spam is detected"
+msgstr ""
+
+#: templates/settings-page.php:169
+msgid "Save Changes"
+msgstr ""
+
+#: templates/stats-page.php:70
+msgid "Anti-Spam Protection: Statistics and Reports"
+msgstr ""
+
+#: templates/stats-page.php:71
+msgid ""
+"Monitor spam attempts and analyze your website security with detailed "
+"insights."
+msgstr ""
+
+#: templates/stats-page.php:79
+msgid "Last 24 Hours"
+msgstr ""
+
+#: templates/stats-page.php:81 templates/stats-page.php:88
+#: templates/stats-page.php:95 templates/stats-page.php:102
+msgid "blocked attempts"
+msgstr ""
+
+#: templates/stats-page.php:86
+msgid "Last 7 Days"
+msgstr ""
+
+#: templates/stats-page.php:93
+msgid "Last 30 Days"
+msgstr ""
+
+#: templates/stats-page.php:100
+msgid "Total"
+msgstr ""
+
+#: templates/stats-page.php:108
+msgid "Log Management"
+msgstr ""
+
+#: templates/stats-page.php:113
+msgid "Clear Last 24 Hours"
+msgstr ""
+
+#: templates/stats-page.php:116
+msgid "Clear Last 7 Days"
+msgstr ""
+
+#: templates/stats-page.php:119
+msgid "Clear Last 30 Days"
+msgstr ""
+
+#: templates/stats-page.php:122
+msgid "Clear All Logs"
+msgstr ""
+
+#: templates/stats-page.php:130
+msgid "Recent Spam Attempts"
+msgstr ""
+
+#: templates/stats-page.php:139
+msgid "Select All"
+msgstr ""
+
+#: templates/stats-page.php:142
+msgid "Date/Time"
+msgstr ""
+
+#: templates/stats-page.php:143
+msgid "Form"
+msgstr ""
+
+#: templates/stats-page.php:145
+msgid "Email"
+msgstr ""
+
+#: templates/stats-page.php:147
+msgid "Risk Level"
+msgstr ""
+
+#: templates/stats-page.php:160
+msgid "Load more"
+msgstr ""
+
+#: templates/stats-page.php:169
+msgid "Select bulk action"
+msgstr ""
+
+#: templates/stats-page.php:172
+msgid "Bulk Actions"
+msgstr ""
+
+#: templates/stats-page.php:173
+msgid "Delete"
+msgstr ""
+
+#: templates/stats-page.php:176
+msgid "Are you sure you want to delete the selected items?"
+msgstr ""
+
+#: templates/stats-page.php:177
+msgid "Apply"
+msgstr ""
+
+#: templates/stats-page.php:188
+#, php-format
+msgid "%d per page"
+msgstr ""
+
+#: templates/stats-page.php:198
+#, php-format
+msgid "%s item"
+msgid_plural "%s items"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/stats-page.php:209
+msgid "&laquo;"
+msgstr ""
+
+#: templates/stats-page.php:210
+msgid "&raquo;"
+msgstr ""
+
+#: templates/stats-page.php:221
+msgid "No spam attempts detected so far. 🎉"
 msgstr ""
